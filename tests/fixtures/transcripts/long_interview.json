@@ -1,0 +1,27 @@
+{
+  "video_id": "interview456",
+  "language": "en",
+  "segments": [
+    {"text": "Welcome to the show. Today we have a special guest.", "start_ms": 0, "end_ms": 4000},
+    {"text": "Thank you for having me. It's great to be here.", "start_ms": 4000, "end_ms": 8000},
+    {"text": "Let's start with your background in artificial intelligence.", "start_ms": 8000, "end_ms": 12000},
+    {"text": "I've been working in AI for about fifteen years now.", "start_ms": 12000, "end_ms": 16000},
+    {"text": "I started at a research lab focused on natural language processing.", "start_ms": 16000, "end_ms": 21000},
+    {"text": "We were building some of the earliest transformer models.", "start_ms": 21000, "end_ms": 25000},
+    {"text": "That must have been an exciting time in the field.", "start_ms": 25000, "end_ms": 29000},
+    {"text": "It really was. Nobody knew how big this would become.", "start_ms": 29000, "end_ms": 33000},
+    {"text": "The breakthroughs came faster than anyone expected.", "start_ms": 33000, "end_ms": 37000},
+    {"text": "What do you think is the most important development recently?", "start_ms": 37000, "end_ms": 41000},
+    {"text": "I'd say the scaling laws paper was a turning point.", "start_ms": 41000, "end_ms": 45000},
+    {"text": "It showed that bigger models consistently perform better.", "start_ms": 45000, "end_ms": 49000},
+    {"text": "But there are diminishing returns at some point.", "start_ms": 49000, "end_ms": 53000},
+    {"text": "We need to be smarter about how we train these systems.", "start_ms": 53000, "end_ms": 57000},
+    {"text": "Efficiency is becoming just as important as scale.", "start_ms": 57000, "end_ms": 61000},
+    {"text": "What about the safety concerns people raise?", "start_ms": 61000, "end_ms": 65000},
+    {"text": "Safety is absolutely critical. We can't ignore it.", "start_ms": 65000, "end_ms": 69000},
+    {"text": "I believe we need both technical and policy solutions.", "start_ms": 69000, "end_ms": 73000},
+    {"text": "The industry is starting to take this more seriously.", "start_ms": 73000, "end_ms": 77000},
+    {"text": "Thank you so much for sharing your insights today.", "start_ms": 77000, "end_ms": 81000},
+    {"text": "My pleasure. Thanks for the great questions.", "start_ms": 81000, "end_ms": 85000}
+  ]
+}

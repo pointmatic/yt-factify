@@ -65,24 +65,24 @@ Define all Pydantic models from the tech spec.
 
 ## Phase B: Core Services
 
-### Story B.a: v0.1.1 Transcript Ingestion & Normalization [Planned]
+### Story B.a: v0.1.1 Transcript Ingestion & Normalization [Done]
 
 Fetch transcripts via yt-fetch and normalize them.
 
-- [ ] Add `yt-fetch` to runtime dependencies in `pyproject.toml`
-- [ ] Create `src/yt_factify/transcript.py`
-  - [ ] `fetch_transcript()` — calls `yt_fetch.fetch_video()`, returns `RawTranscript`
-  - [ ] `normalize_transcript()` — strips whitespace, normalizes Unicode, computes SHA-256 hash
-  - [ ] `segment_transcript()` — splits into segments targeting ~45s, respects sentence boundaries
-  - [ ] Custom exceptions: `TranscriptFetchError`, `EmptyTranscriptError`
-- [ ] Create `tests/fixtures/transcripts/` with at least 2 sample transcript JSON files
-- [ ] Create `tests/test_transcript.py`
-  - [ ] Test normalization (whitespace, Unicode, hashing)
-  - [ ] Test segmentation (target duration, sentence boundaries, single-segment edge case)
-  - [ ] Test empty transcript raises `EmptyTranscriptError`
-  - [ ] Test fetch with mocked yt-fetch
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all transcript tests pass
+- [x] Add `yt-fetch` to runtime dependencies in `pyproject.toml`
+- [x] Create `src/yt_factify/transcript.py`
+  - [x] `fetch_transcript()` — calls `yt_fetch.fetch_video()`, returns `RawTranscript`
+  - [x] `normalize_transcript()` — strips whitespace, normalizes Unicode, computes SHA-256 hash
+  - [x] `segment_transcript()` — splits into segments targeting ~45s, respects sentence boundaries
+  - [x] Custom exceptions: `TranscriptFetchError`, `EmptyTranscriptError`
+- [x] Create `tests/fixtures/transcripts/` with at least 2 sample transcript JSON files
+- [x] Create `tests/test_transcript.py`
+  - [x] Test normalization (whitespace, Unicode, hashing)
+  - [x] Test segmentation (target duration, sentence boundaries, single-segment edge case)
+  - [x] Test empty transcript raises `EmptyTranscriptError`
+  - [x] Test fetch with mocked yt-fetch
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all transcript tests pass
 
 ### Story B.b: v0.1.2 Prompt Templates [Planned]
 

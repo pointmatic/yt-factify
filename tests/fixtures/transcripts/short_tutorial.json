@@ -1,0 +1,14 @@
+{
+  "video_id": "tutorial123",
+  "language": "en",
+  "segments": [
+    {"text": "Welcome to this Python tutorial.", "start_ms": 0, "end_ms": 3000},
+    {"text": "Today we'll learn about data classes.", "start_ms": 3000, "end_ms": 6500},
+    {"text": "Data classes were introduced in Python 3.7.", "start_ms": 6500, "end_ms": 10000},
+    {"text": "They reduce boilerplate code significantly.", "start_ms": 10000, "end_ms": 14000},
+    {"text": "Let me show you an example.", "start_ms": 14000, "end_ms": 16500},
+    {"text": "Here we define a simple Person class.", "start_ms": 16500, "end_ms": 20000},
+    {"text": "It has name and age fields.", "start_ms": 20000, "end_ms": 23000},
+    {"text": "That's all for today. Thanks for watching!", "start_ms": 23000, "end_ms": 27000}
+  ]
+}
