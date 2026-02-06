@@ -6,4 +6,4 @@
 
 """yt-factify: Extract structured, auditable facts and quotes from YouTube video transcripts."""
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"

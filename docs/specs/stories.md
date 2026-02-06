@@ -84,27 +84,27 @@ Fetch transcripts via yt-fetch and normalize them.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: all transcript tests pass
 
-### Story B.b: v0.1.2 Prompt Templates [Planned]
+### Story B.b: v0.1.2 Prompt Templates [Done]
 
 Create the prompt template system and extraction prompts.
 
-- [ ] Create `src/yt_factify/prompts/__init__.py` with prompt loading utilities
-  - [ ] `load_prompt()` — loads and renders a prompt template
-  - [ ] `hash_prompts()` — computes SHA-256 of concatenated prompt templates for audit
-- [ ] Create `src/yt_factify/prompts/extraction.py`
-  - [ ] System prompt defining item types, schema, and anchoring rules
-  - [ ] User prompt template accepting transcript segment text and timestamps
-  - [ ] `build_extraction_messages()` — returns list of message dicts for litellm
-- [ ] Create `src/yt_factify/prompts/classification.py`
-  - [ ] System prompt for video categorization
-  - [ ] System prompt for bias/slant detection
-  - [ ] `build_classification_messages()` and `build_bias_messages()`
-- [ ] Create `src/yt_factify/prompts/credibility.py`
-  - [ ] System prompt for credibility assessment
-  - [ ] `build_credibility_messages()` accepting items and belief modules
-- [ ] Create basic tests for prompt building (correct structure, no empty messages)
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: prompt tests pass
+- [x] Create `src/yt_factify/prompts/__init__.py` with prompt loading utilities
+  - [x] `hash_prompts()` — computes SHA-256 of concatenated prompt templates for audit
+  - [x] `ChatMessage` type alias, `_system_msg()`, `_user_msg()` helpers
+- [x] Create `src/yt_factify/prompts/extraction.py`
+  - [x] System prompt defining item types, schema, and anchoring rules
+  - [x] User prompt template accepting transcript segment text and timestamps
+  - [x] `build_extraction_messages()` — returns list of message dicts for litellm
+- [x] Create `src/yt_factify/prompts/classification.py`
+  - [x] System prompt for video categorization
+  - [x] System prompt for bias/slant detection
+  - [x] `build_classification_messages()` and `build_bias_messages()`
+- [x] Create `src/yt_factify/prompts/credibility.py`
+  - [x] System prompt for credibility assessment
+  - [x] `build_credibility_messages()` accepting items and belief modules
+- [x] Create basic tests for prompt building (correct structure, no empty messages)
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: prompt tests pass
 
 ### Story B.c: v0.1.3 LLM Extraction [Planned]
 
