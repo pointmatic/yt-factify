@@ -127,23 +127,23 @@ Implement LLM-based item extraction using litellm.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: all extraction tests pass
 
-### Story B.d: v0.1.4 Validation [Planned]
+### Story B.d: v0.1.4 Validation [Done]
 
 Post-extraction validation — quote verification, timestamp checks.
 
-- [ ] Create `src/yt_factify/validation.py`
-  - [ ] `validate_items()` — returns `ValidationResult` with accepted/rejected/downgraded items
-  - [ ] `verify_quote()` — exact substring match within timestamp range
-  - [ ] Timestamp bounds checking against transcript
-  - [ ] Behavior controlled by `quote_mismatch` config (reject or downgrade)
-- [ ] Create `tests/test_validation.py`
-  - [ ] Test exact quote match (pass)
-  - [ ] Test quote mismatch (reject mode)
-  - [ ] Test quote mismatch (downgrade mode)
-  - [ ] Test invalid timestamp bounds
-  - [ ] Test non-quote items pass through without quote check
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all validation tests pass
+- [x] Create `src/yt_factify/validation.py`
+  - [x] `validate_items()` — returns `ValidationResult` with accepted/rejected/downgraded items
+  - [x] `verify_quote()` — exact substring match within timestamp range
+  - [x] Timestamp bounds checking against transcript
+  - [x] Behavior controlled by `quote_mismatch` config (reject or downgrade)
+- [x] Create `tests/test_validation.py`
+  - [x] Test exact quote match (pass)
+  - [x] Test quote mismatch (reject mode)
+  - [x] Test quote mismatch (downgrade mode)
+  - [x] Test invalid timestamp bounds
+  - [x] Test non-quote items pass through without quote check
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all validation tests pass
 
 ### Story B.e: v0.1.5 Classification & Credibility [Planned]
 
