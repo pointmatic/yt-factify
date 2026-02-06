@@ -5,3 +5,4 @@ __pycache__
 .pyve/testenv
 .DS_Store
 .archive
+*.egg-info

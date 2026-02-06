@@ -8,39 +8,39 @@ Stories are numbered using the scheme `<Phase>.<letter>` (e.g., A.a, A.b, B.a). 
 
 ## Phase A: Foundation
 
-### Story A.a: v0.0.1 Hello World [Planned]
+### Story A.a: v0.0.1 Hello World [Done]
 
 Minimal runnable artifact — a CLI that prints a greeting and version.
 
-- [ ] Create `pyproject.toml` with project metadata, dependencies (click, rich), and entry point `yt-factify`
-  - [ ] Set license to `MPL-2.0`, author to Pointmatic
-  - [ ] Configure Ruff and mypy in `pyproject.toml`
-- [ ] Create `src/yt_factify/__init__.py` with `__version__ = "0.1.0"`
-- [ ] Create `src/yt_factify/__main__.py` for `python -m yt_factify`
-- [ ] Create `src/yt_factify/cli.py` with a Click group and `version` command
-- [ ] Create `Makefile` with targets: `install`, `lint`, `format`, `typecheck`, `test`
-- [ ] Install package in dev mode and verify: `yt-factify version` prints `0.1.0`
-- [ ] Add MPL-2.0 copyright header to all new source files
-- [ ] Verify: `yt-factify version` outputs version string
+- [x] Create `pyproject.toml` with project metadata, dependencies (click, rich), and entry point `yt-factify`
+  - [x] Set license to `MPL-2.0`, author to Pointmatic
+  - [x] Configure Ruff and mypy in `pyproject.toml`
+- [x] Create `src/yt_factify/__init__.py` with `__version__ = "0.0.1"`
+- [x] Create `src/yt_factify/__main__.py` for `python -m yt_factify`
+- [x] Create `src/yt_factify/cli.py` with a Click group and `version` command
+- [x] Create `Makefile` with targets: `install`, `lint`, `format`, `typecheck`, `test`
+- [x] Install package in dev mode and verify: `yt-factify version` prints `0.0.1`
+- [x] Add MPL-2.0 copyright header to all new source files
+- [x] Verify: `yt-factify version` outputs version string
 
-### Story A.b: v0.0.2 Configuration & Logging [Planned]
+### Story A.b: v0.0.2 Configuration & Logging [Done]
 
 Set up the configuration system and structured logging.
 
-- [ ] Create `src/yt_factify/config.py` with `AppConfig` Pydantic model
-  - [ ] Implement config loading: CLI overrides > env vars (`YT_FACTIFY_*`) > TOML file > defaults
-  - [ ] Support `--config` flag for custom config file path
-- [ ] Create `src/yt_factify/logging.py` with structlog setup
-  - [ ] Configurable log level (DEBUG, INFO, WARNING, ERROR)
-  - [ ] JSON-compatible structured output
-- [ ] Wire config and logging into `cli.py`
-  - [ ] Add shared CLI options (`--log-level`, `--config`)
-- [ ] Create `tests/test_config.py`
-  - [ ] Test precedence: CLI > env > file > defaults
-  - [ ] Test env var parsing with `YT_FACTIFY_` prefix
-  - [ ] Test missing config file handled gracefully
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: `yt-factify extract --help` shows all config options
+- [x] Create `src/yt_factify/config.py` with `AppConfig` Pydantic model
+  - [x] Implement config loading: CLI overrides > env vars (`YT_FACTIFY_*`) > TOML file > defaults
+  - [x] Support `--config` flag for custom config file path
+- [x] Create `src/yt_factify/logging.py` with structlog setup
+  - [x] Configurable log level (DEBUG, INFO, WARNING, ERROR)
+  - [x] JSON-compatible structured output
+- [x] Wire config and logging into `cli.py`
+  - [x] Add shared CLI options (`--log-level`, `--config`)
+- [x] Create `tests/test_config.py`
+  - [x] Test precedence: CLI > env > file > defaults
+  - [x] Test env var parsing with `YT_FACTIFY_` prefix
+  - [x] Test missing config file handled gracefully
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: `yt-factify extract --help` shows all config options
 
 ### Story A.c: v0.0.3 Data Models [Planned]
 
