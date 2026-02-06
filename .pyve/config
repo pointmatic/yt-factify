@@ -1,0 +1,6 @@
+pyve_version: "0.9.9"
+backend: venv
+venv:
+  directory: .venv
+python:
+  version: 3.14.3
