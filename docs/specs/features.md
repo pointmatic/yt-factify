@@ -71,6 +71,7 @@ yt-factify is both a **Python library** (for programmatic use) and a **CLI tool*
 4. **Content generation** — yt-factify extracts and classifies; it does not generate summaries, articles, or narratives from the extracted data.
 5. **Real-time processing** — The tool processes one video at a time in batch mode; streaming/real-time analysis is out of scope.
 6. **PII detection/redaction** — Deferred to a future version.
+7. **Stance evolution tracking** — Detecting when a speaker changes their position on a topic during the video (e.g., starts skeptical but becomes convinced). Topic threads capture *what* is discussed and *when*, but tracking *how positions shift* within a thread is deferred to a future version.
 
 ---
 
@@ -145,6 +146,20 @@ The primary output is a JSON document conforming to a strict schema. Top-level s
       ]
     }
   ],
+  "topic_threads": [
+    {
+      "label": "string (short identifier, e.g., 'ai_safety')",
+      "display_name": "string (human-readable name)",
+      "summary": "string (1-2 sentence description)",
+      "item_ids": ["string (references to items in this thread)"],
+      "timeline": [
+        {
+          "start_ms": 0,
+          "end_ms": 0
+        }
+      ]
+    }
+  ],
   "audit": {
     "model_id": "string",
     "model_version": "string",
@@ -161,6 +176,7 @@ The primary output is a JSON document conforming to a strict schema. Top-level s
 A human-readable report organized by section:
 
 - **Video Info** — title, URL, categories, bias profile.
+- **Topic Overview** — topic threads with timelines showing when each topic appears and recurs.
 - **Key Facts** — items of type `transcript_fact` and `general_knowledge`, grouped by credibility.
 - **Direct Quotes** — notable quotes with speaker attribution and timestamps.
 - **Opinions & Perspectives** — `speaker_opinion` items with bias context.
@@ -234,7 +250,19 @@ Each extracted item receives a credibility label based on the LLM's general know
 - A short rationale.
 - References to relevant belief/value system modules, if applicable.
 
-### FR-9: Output Rendering
+### FR-9: Topic Threading
+
+After extraction, the tool clusters extracted items into **topic threads** — named groups of items that share a common subject. This captures the conversational structure of videos where topics are introduced, revisited, and deepened over time.
+
+Each topic thread includes:
+- A short label (e.g., `ai_safety`) and human-readable display name (e.g., "AI Safety Concerns").
+- A 1–2 sentence summary of the thread.
+- References to the extracted items belonging to this thread (an item may belong to multiple threads).
+- A timeline showing the time ranges where this topic appears in the video, revealing revisitation patterns.
+
+Topic threading is performed by the LLM as a post-extraction analysis pass. The LLM receives all validated extracted items and clusters them by subject. For v1, threads are a flat list (no hierarchical sub-topics). Items may belong to zero or more threads.
+
+### FR-10: Output Rendering
 
 The tool renders the extraction result in the requested format:
 - **JSON** (default): the full structured output conforming to the schema.
@@ -242,7 +270,7 @@ The tool renders the extraction result in the requested format:
 
 Output is written to stdout by default, or to a specified file path.
 
-### FR-10: Audit Bundle
+### FR-11: Audit Bundle
 
 Every run produces an audit trail as part of the output, including:
 - Transcript hash and segment hashes.

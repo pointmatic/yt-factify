@@ -180,6 +180,31 @@ Module loading and integration with extraction/credibility.
 - [ ] Add MPL-2.0 header to all new source files
 - [ ] Verify: all belief system tests pass
 
+### Story B.g: v0.1.7 Topic Threading [Planned]
+
+Cluster extracted items into topic threads to capture conversational structure.
+
+- [ ] Add `TopicTimeSpan` and `TopicThread` models to `src/yt_factify/models.py`
+- [ ] Add `topic_threads` field to `ExtractionResult`
+- [ ] Create `src/yt_factify/prompts/topics.py`
+  - [ ] System prompt for topic clustering (item grouping by subject)
+  - [ ] `build_topic_threading_messages()` accepting items list
+- [ ] Create `src/yt_factify/topics.py`
+  - [ ] `cluster_topic_threads()` — async, calls LLM to cluster items by topic
+  - [ ] Parses LLM response, validates item IDs against input
+  - [ ] Derives timeline from `transcript_evidence` timestamps of member items
+  - [ ] Retries once on malformed JSON, raises `TopicClusteringError` on failure
+  - [ ] Handles edge case: very few items (< 3) returns empty list
+- [ ] Create `tests/fixtures/llm_responses/` topic threading response fixture
+- [ ] Create `tests/test_topics.py`
+  - [ ] Test topic clustering with mocked LLM
+  - [ ] Test timeline derivation from item timestamps
+  - [ ] Test unknown item IDs are skipped
+  - [ ] Test malformed JSON handling (retry, then error)
+  - [ ] Test few-items edge case
+- [ ] Add MPL-2.0 header to all new source files
+- [ ] Verify: all topic threading tests pass
+
 ---
 
 ## Phase C: Pipeline & Orchestration
@@ -197,8 +222,9 @@ Wire all services together into the full extraction pipeline.
     5. Extract items from segments (concurrent)
     6. Validate items
     7. Assess credibility
-    8. Build audit bundle
-    9. Return `ExtractionResult`
+    8. Cluster topic threads
+    9. Build audit bundle
+    10. Return `ExtractionResult`
   - [ ] Proper error handling at each stage with informative messages
 - [ ] Create `tests/test_pipeline.py`
   - [ ] Test full pipeline with fixture transcript and mocked LLM
@@ -214,7 +240,7 @@ JSON and Markdown output rendering.
 - [ ] Create `src/yt_factify/rendering.py`
   - [ ] `render_json()` — serialize `ExtractionResult` to JSON string
   - [ ] `render_markdown()` — human-readable Markdown summary with sections:
-    - Video Info, Key Facts, Direct Quotes, Opinions & Perspectives, Unverified Claims, Predictions, Belief System Notes
+    - Video Info, Topic Overview, Key Facts, Direct Quotes, Opinions & Perspectives, Unverified Claims, Predictions, Belief System Notes
   - [ ] Atomic file writes (write to temp, then rename)
 - [ ] Create `tests/fixtures/expected_outputs/` with golden output files
 - [ ] Create `tests/test_rendering.py`

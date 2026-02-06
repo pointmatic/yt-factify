@@ -79,6 +79,7 @@ yt-factify/
 │       ├── extraction.py            # LLM-based item extraction (prompt building, response parsing)
 │       ├── validation.py            # Quote verification, schema validation, timestamp checks
 │       ├── classification.py        # Video categorization, bias/slant detection, credibility
+│       ├── topics.py                # Topic thread clustering (post-extraction)
 │       ├── belief_systems.py        # Belief/value system module loading and management
 │       ├── rendering.py             # Output rendering (JSON, Markdown)
 │       ├── pipeline.py              # Orchestrates the full extraction pipeline
@@ -86,7 +87,8 @@ yt-factify/
 │       │   ├── __init__.py          # Prompt loading utilities
 │       │   ├── extraction.py        # Item extraction prompt templates
 │       │   ├── classification.py    # Categorization + bias prompt templates
-│       │   └── credibility.py       # Credibility assessment prompt templates
+│       │   ├── credibility.py       # Credibility assessment prompt templates
+│       │   └── topics.py            # Topic threading prompt templates
 │       ├── modules/                  # Built-in belief/value system modules
 │       │   └── README.md            # How to author new modules
 │       └── logging.py               # Structured logging setup
@@ -102,6 +104,7 @@ yt-factify/
 │   ├── test_extraction.py
 │   ├── test_validation.py
 │   ├── test_classification.py
+│   ├── test_topics.py
 │   ├── test_belief_systems.py
 │   ├── test_rendering.py
 │   ├── test_pipeline.py
@@ -236,6 +239,29 @@ async def assess_credibility(
     """
 ```
 
+### `topics.py` — Topic Thread Clustering
+
+```python
+async def cluster_topic_threads(
+    items: list[ExtractedItem],
+    config: AppConfig,
+) -> list[TopicThread]:
+    """Cluster extracted items into topic threads via LLM.
+
+    Receives all validated extracted items and asks the LLM to identify
+    recurring topics and group items by subject. Items may belong to
+    multiple threads. The timeline for each thread is derived from the
+    transcript_evidence timestamps of its member items.
+
+    For v1, threads are a flat list (no hierarchical sub-topics).
+    """
+```
+
+**Edge cases:**
+- Very few items (< 3) → return a single thread or empty list.
+- LLM returns item IDs not in the input → skip with a warning.
+- LLM returns malformed JSON → retry once, then raise `TopicClusteringError`.
+
 ### `belief_systems.py` — Module Loading
 
 ```python
@@ -267,8 +293,9 @@ async def run_pipeline(
     5. Extract items from segments (concurrent).
     6. Validate items (quote verification, timestamp checks).
     7. Assess credibility of validated items.
-    8. Build audit bundle.
-    9. Return ExtractionResult.
+    8. Cluster topic threads from validated items.
+    9. Build audit bundle.
+    10. Return ExtractionResult.
     """
 ```
 
@@ -473,6 +500,23 @@ class BeliefSystemModule(BaseModel):
     example_claims: list[str] = Field(default_factory=list)
 ```
 
+### Topic Thread Models
+
+```python
+class TopicTimeSpan(BaseModel):
+    """A time range where a topic appears in the video."""
+    start_ms: int
+    end_ms: int
+
+class TopicThread(BaseModel):
+    """A named cluster of extracted items sharing a common subject."""
+    label: str
+    display_name: str
+    summary: str
+    item_ids: list[str]
+    timeline: list[TopicTimeSpan] = Field(default_factory=list)
+```
+
 ### Output Models
 
 ```python
@@ -504,6 +548,7 @@ class ExtractionResult(BaseModel):
     video: VideoInfo
     classification: VideoClassification
     items: list[ExtractedItem]
+    topic_threads: list[TopicThread] = Field(default_factory=list)
     audit: AuditBundle
 ```
 
@@ -674,6 +719,7 @@ All LLM calls go through `litellm.acompletion()`, which provides:
 |------|---------------|
 | `test_extraction.py` | Prompt building + mocked LLM response parsing |
 | `test_classification.py` | Classification + credibility with mocked LLM |
+| `test_topics.py` | Topic thread clustering with mocked LLM |
 | `test_pipeline.py` | Full pipeline with fixture transcripts and mocked LLM |
 | `test_cli.py` | CLI invocation, flag parsing, output format, exit codes |
 
