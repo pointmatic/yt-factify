@@ -1,8 +1,8 @@
-.venv
-.env
-.envrc
 __pycache__
 .pyve/testenv
 .DS_Store
 .archive
 *.egg-info
+.venv
+.env
+.envrc

@@ -12,7 +12,8 @@ from pathlib import Path
 
 import pytest
 
-from yt_factify.config import AppConfig, QuoteMismatchBehavior, load_config
+from yt_factify.config import AppConfig, load_config
+from yt_factify.models import QuoteMismatchBehavior
 
 
 class TestAppConfigDefaults:

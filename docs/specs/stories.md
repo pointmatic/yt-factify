@@ -42,24 +42,24 @@ Set up the configuration system and structured logging.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: `yt-factify extract --help` shows all config options
 
-### Story A.c: v0.0.3 Data Models [Planned]
+### Story A.c: v0.0.3 Data Models [Done]
 
 Define all Pydantic models from the tech spec.
 
-- [ ] Create `src/yt_factify/models.py` with all enums and models:
-  - [ ] `ItemType`, `CredibilityLabel`, `VideoCategory`, `QuoteMismatchBehavior`
-  - [ ] `TranscriptSegmentRaw`, `RawTranscript`, `NormalizedSegment`, `NormalizedTranscript`, `TranscriptSegment`
-  - [ ] `TranscriptEvidence`, `BeliefSystemFlag`, `CredibilityAssessment`, `ExtractedItem`
-  - [ ] `BiasProfile`, `VideoClassification`
-  - [ ] `BeliefSystemModule`
-  - [ ] `VideoInfo`, `AuditBundle`, `ValidationResult`, `ExtractionResult`
-- [ ] Create `tests/test_models.py`
-  - [ ] Test model construction with valid data
-  - [ ] Test validation rejects invalid data (bad confidence ranges, missing fields)
-  - [ ] Test JSON serialization round-trip
-  - [ ] Test enum values match spec
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all model tests pass
+- [x] Create `src/yt_factify/models.py` with all enums and models:
+  - [x] `ItemType`, `CredibilityLabel`, `VideoCategory`, `QuoteMismatchBehavior`
+  - [x] `TranscriptSegmentRaw`, `RawTranscript`, `NormalizedSegment`, `NormalizedTranscript`, `TranscriptSegment`
+  - [x] `TranscriptEvidence`, `BeliefSystemFlag`, `CredibilityAssessment`, `ExtractedItem`
+  - [x] `BiasProfile`, `VideoClassification`
+  - [x] `BeliefSystemModule`
+  - [x] `VideoInfo`, `AuditBundle`, `ValidationResult`, `ExtractionResult`
+- [x] Create `tests/test_models.py`
+  - [x] Test model construction with valid data
+  - [x] Test validation rejects invalid data (bad confidence ranges, missing fields)
+  - [x] Test JSON serialization round-trip
+  - [x] Test enum values match spec
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all model tests pass
 
 ---
 

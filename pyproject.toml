@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yt-factify"
-version = "0.0.2"
+version = "0.0.3"
 description = "Extract structured, auditable facts and quotes from YouTube video transcripts"
 license = "MPL-2.0"
 requires-python = ">=3.14"
@@ -44,7 +44,7 @@ line-length = 99
 src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM", "TCH"]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM"]
 
 [tool.mypy]
 strict = true
@@ -58,3 +58,4 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]

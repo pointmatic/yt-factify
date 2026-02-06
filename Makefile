@@ -1,3 +1,5 @@
+export PYTHONPATH := $(CURDIR)/src:$(PYTHONPATH)
+
 .PHONY: install lint format typecheck test clean
 
 install:

@@ -17,18 +17,14 @@ from __future__ import annotations
 
 import os
 import tomllib
-from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
 
+from yt_factify.models import QuoteMismatchBehavior
+
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "yt-factify" / "config.toml"
-
-
-class QuoteMismatchBehavior(StrEnum):
-    REJECT = "reject"
-    DOWNGRADE = "downgrade"
 
 
 class AppConfig(BaseModel):
