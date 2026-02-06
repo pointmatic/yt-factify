@@ -1,0 +1,15 @@
+```json
+[
+  {
+    "id": "item_1",
+    "type": "transcript_fact",
+    "content": "The scaling laws paper was a turning point.",
+    "speaker": "guest",
+    "transcript_evidence": {
+      "text": "I'd say the scaling laws paper was a turning point.",
+      "start_ms": 41000,
+      "end_ms": 45000
+    }
+  }
+]
+```

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "item_1",
+    "type": "transcript_fact",
+    "content": "Data classes were introduced in Python 3.7.",
+    "speaker": null,
+    "transcript_evidence": {
+      "text": "Data classes were introduced in Python 3.7.",
+      "start_ms": 6500,
+      "end_ms": 10000
+    }
+  },
+  {
+    "id": "item_2",
+    "type": "speaker_opinion",
+    "content": "They reduce boilerplate code significantly.",
+    "speaker": null,
+    "transcript_evidence": {
+      "text": "They reduce boilerplate code significantly.",
+      "start_ms": 10000,
+      "end_ms": 14000
+    }
+  },
+  {
+    "id": "item_3",
+    "type": "direct_quote",
+    "content": "Let me show you an example.",
+    "speaker": "narrator",
+    "transcript_evidence": {
+      "text": "Let me show you an example.",
+      "start_ms": 14000,
+      "end_ms": 16500
+    }
+  }
+]

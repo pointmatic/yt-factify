@@ -106,26 +106,26 @@ Create the prompt template system and extraction prompts.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: prompt tests pass
 
-### Story B.c: v0.1.3 LLM Extraction [Planned]
+### Story B.c: v0.1.3 LLM Extraction [Done]
 
 Implement LLM-based item extraction using litellm.
 
-- [ ] Add `litellm` to runtime dependencies in `pyproject.toml`
-- [ ] Create `src/yt_factify/extraction.py`
-  - [ ] `extract_items()` — async, processes segments concurrently with semaphore
-  - [ ] `_extract_segment()` — builds prompt, calls `litellm.acompletion()`, parses JSON response
-  - [ ] Validates response against `ExtractedItem` schema
-  - [ ] Retries once on malformed JSON or schema failure
-  - [ ] Raises `ExtractionError` on persistent failure
-- [ ] Create `tests/fixtures/llm_responses/` with sample extraction responses
-- [ ] Create `tests/test_extraction.py`
-  - [ ] Test prompt building with mock segments
-  - [ ] Test response parsing with valid fixture data
-  - [ ] Test malformed JSON handling (retry, then error)
-  - [ ] Test schema validation failure handling
-  - [ ] Test concurrency limiting
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all extraction tests pass
+- [x] Add `litellm` to runtime dependencies in `pyproject.toml`
+- [x] Create `src/yt_factify/extraction.py`
+  - [x] `extract_items()` — async, processes segments concurrently with semaphore
+  - [x] `_extract_segment()` — builds prompt, calls `litellm.acompletion()`, parses JSON response
+  - [x] Validates response against `ExtractedItem` schema
+  - [x] Retries once on malformed JSON or schema failure
+  - [x] Raises `ExtractionError` on persistent failure
+- [x] Create `tests/fixtures/llm_responses/` with sample extraction responses
+- [x] Create `tests/test_extraction.py`
+  - [x] Test prompt building with mock segments
+  - [x] Test response parsing with valid fixture data
+  - [x] Test malformed JSON handling (retry, then error)
+  - [x] Test schema validation failure handling
+  - [x] Test concurrency limiting
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all extraction tests pass
 
 ### Story B.d: v0.1.4 Validation [Planned]
 
