@@ -1,0 +1,11 @@
+{
+  "categories": ["tutorial", "interview"],
+  "bias_profile": {
+    "primary_label": "neutral",
+    "confidence": 0.85,
+    "rationale": "The video presents technical content in an objective manner with balanced perspectives from both host and guest.",
+    "implicit_bias_notes": [
+      "Slight preference for Python over other languages"
+    ]
+  }
+}

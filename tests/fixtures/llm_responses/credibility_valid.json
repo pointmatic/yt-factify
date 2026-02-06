@@ -1,0 +1,23 @@
+[
+  {
+    "item_id": "item_1",
+    "label": "well_established",
+    "confidence": 0.95,
+    "rationale": "Data classes were indeed introduced in Python 3.7 (PEP 557).",
+    "relevant_belief_systems": []
+  },
+  {
+    "item_id": "item_2",
+    "label": "credible",
+    "confidence": 0.7,
+    "rationale": "Data classes do reduce boilerplate, though the degree is subjective.",
+    "relevant_belief_systems": []
+  },
+  {
+    "item_id": "item_3",
+    "label": "unassessable",
+    "confidence": 0.9,
+    "rationale": "This is a procedural statement by the speaker, not a factual claim.",
+    "relevant_belief_systems": []
+  }
+]

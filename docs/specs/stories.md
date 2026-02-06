@@ -145,22 +145,22 @@ Post-extraction validation — quote verification, timestamp checks.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: all validation tests pass
 
-### Story B.e: v0.1.5 Classification & Credibility [Planned]
+### Story B.e: v0.1.5 Classification & Credibility [Done]
 
 Video categorization, bias detection, and credibility assessment.
 
-- [ ] Create `src/yt_factify/classification.py`
-  - [ ] `classify_video()` — async, calls LLM for category + bias profile
-  - [ ] `assess_credibility()` — async, adds credibility labels to items
-  - [ ] For long transcripts, samples representative segments (first, middle, last + random)
-- [ ] Create `tests/fixtures/llm_responses/` classification and credibility response fixtures
-- [ ] Create `tests/test_classification.py`
-  - [ ] Test category classification with mocked LLM
-  - [ ] Test bias profile generation with mocked LLM
-  - [ ] Test credibility assessment with mocked LLM
-  - [ ] Test long transcript sampling logic
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all classification tests pass
+- [x] Create `src/yt_factify/classification.py`
+  - [x] `classify_video()` — async, calls LLM for category + bias profile
+  - [x] `assess_credibility()` — async, adds credibility labels to items
+  - [x] For long transcripts, samples representative segments (first, middle, last + random)
+- [x] Create `tests/fixtures/llm_responses/` classification and credibility response fixtures
+- [x] Create `tests/test_classification.py`
+  - [x] Test category classification with mocked LLM
+  - [x] Test bias profile generation with mocked LLM
+  - [x] Test credibility assessment with mocked LLM
+  - [x] Test long transcript sampling logic
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all classification tests pass
 
 ### Story B.f: v0.1.6 Belief/Value System Modules [Planned]
 
