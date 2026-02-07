@@ -233,22 +233,21 @@ Wire all services together into the full extraction pipeline.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: all pipeline tests pass
 
-### Story C.b: v0.2.2 Output Rendering [Planned]
+### Story C.b: v0.2.2 Output Rendering [Done]
 
 JSON and Markdown output rendering.
 
-- [ ] Create `src/yt_factify/rendering.py`
-  - [ ] `render_json()` — serialize `ExtractionResult` to JSON string
-  - [ ] `render_markdown()` — human-readable Markdown summary with sections:
+- [x] Create `src/yt_factify/rendering.py`
+  - [x] `render_json()` — serialize `ExtractionResult` to JSON string
+  - [x] `render_markdown()` — human-readable Markdown summary with sections:
     - Video Info, Topic Overview, Key Facts, Direct Quotes, Opinions & Perspectives, Unverified Claims, Predictions, Belief System Notes
-  - [ ] Atomic file writes (write to temp, then rename)
-- [ ] Create `tests/fixtures/expected_outputs/` with golden output files
-- [ ] Create `tests/test_rendering.py`
-  - [ ] Test JSON output matches schema
-  - [ ] Test Markdown output contains expected sections
-  - [ ] Test atomic write (file exists only after success)
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all rendering tests pass
+  - [x] Atomic file writes (write to temp, then rename)
+- [x] Create `tests/test_rendering.py`
+  - [x] Test JSON output matches schema
+  - [x] Test Markdown output contains expected sections
+  - [x] Test atomic write (file exists only after success)
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all rendering tests pass
 
 ---
 
