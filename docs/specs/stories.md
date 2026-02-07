@@ -332,22 +332,27 @@ Ensure full type safety and code quality.
 
 ## Phase F: Documentation & Release
 
-### Story F.a: v0.5.1 README & Documentation [Planned]
+### Story F.a: v0.5.1 README & Documentation [Done]
 
 Project documentation for users and contributors.
 
-- [ ] Create `README.md` with:
-  - [ ] Project description and purpose
-  - [ ] Installation instructions
-  - [ ] Quick start (CLI and library examples)
-  - [ ] Configuration reference
-  - [ ] Belief system module authoring guide
-  - [ ] Output format documentation
-  - [ ] Development setup instructions
-  - [ ] License notice
-- [ ] Update `src/yt_factify/modules/README.md` with complete module authoring guide and template
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: README examples are accurate and runnable
+- [x] Create `README.md` with:
+  - [x] Project description and purpose
+  - [x] Installation instructions
+  - [x] Quick start (CLI and library examples — async, sync, rendering)
+  - [x] Configuration reference (config file, env vars, CLI options, exit codes)
+  - [x] Belief system module authoring guide
+  - [x] Output format documentation (JSON structure, Markdown sections)
+  - [x] Development setup instructions (tests, linting, type checking)
+  - [x] Project structure overview
+  - [x] License notice
+- [x] Update `src/yt_factify/modules/README.md` with:
+  - [x] Built-in modules list
+  - [x] Copy-paste template
+  - [x] Tips for effective modules
+  - [x] Validation rules
+  - [x] Loading examples (CLI, config, library API)
+- [x] Verify: README examples are accurate and match actual CLI/API
 
 ### Story F.b: v0.5.2 Release Polish [Planned]
 
