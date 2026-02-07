@@ -2,6 +2,14 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.5.10] — 2026-02-07
+
+### License Switch
+- **MPL-2.0 → Apache-2.0** — switched project license to Apache License 2.0 to align with Pointmatic open-source strategy
+- Replaced `LICENSE` file with Apache-2.0 full text
+- Updated copyright headers in all 38 source and test files
+- Updated `pyproject.toml`, `README.md`, `features.md`, `tech_spec.md`, `CHANGELOG.md`
+
 ## [0.5.9] — 2026-02-07
 
 ### Convert Command
@@ -145,4 +153,4 @@ All notable changes to yt-factify are documented in this file.
 - Configuration system with CLI > env > file > defaults precedence
 - Structured logging via `structlog`
 - LLM prompt templates for extraction, classification, credibility, and topic threading
-- Project scaffolding with `pyproject.toml`, MPL-2.0 license
+- Project scaffolding with `pyproject.toml`, Apache-2.0 license (switched from MPL-2.0 in v0.5.10)

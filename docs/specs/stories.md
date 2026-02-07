@@ -330,7 +330,7 @@ Ensure full type safety and code quality.
 
 ---
 
-## Phase F: Documentation & Release
+## Phase F: Documentation, Release, and Production Performance
 
 ### Story F.a: v0.5.1 README & Documentation [Done]
 
@@ -598,6 +598,21 @@ yt-factify convert result.json --format markdown --output reports/
 - [x] Update `CHANGELOG.md`
 - [x] Update `README.md` CLI usage section
 - [x] Update `tech_spec.md` CLI commands section
+
+### Story F.j: v0.5.10 License Switch — MPL-2.0 → Apache-2.0 [Done]
+
+Switch the project license from MPL-2.0 to Apache-2.0 to align with the broader Pointmatic open-source strategy (including the upcoming gentlify library).
+
+- [x] Replace `LICENSE` file with the Apache License, Version 2.0 full text
+- [x] Update `pyproject.toml` license field to `Apache-2.0`
+- [x] Replace MPL-2.0 copyright headers in all source files (22 in `src/`, 16 in `tests/`) with Apache-2.0 headers
+- [x] Update references in docs:
+  - [x] `README.md` — license badge/mention
+  - [x] `CHANGELOG.md` — new entry for v0.5.10
+  - [x] `docs/specs/features.md` — Security and Compliance section
+  - [x] `docs/specs/tech_spec.md` — any MPL-2.0 references
+- [x] Bump version to `0.5.10` in `pyproject.toml` and `src/yt_factify/__init__.py`
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (328 tests)
 
 ## Phase G: Channel Analytics
 

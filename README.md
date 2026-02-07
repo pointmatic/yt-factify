@@ -2,7 +2,7 @@
 
 Extract auditable facts, quotes, topics, and biases from YouTube transcripts.
 
-[![License: MPL-2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://mozilla.org/MPL/2.0/)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
 [![Coverage: 96%](https://img.shields.io/badge/coverage-96%25-brightgreen.svg)](https://github.com/pointmatic/yt-factify)
 
@@ -323,6 +323,6 @@ src/yt_factify/
 
 ## License
 
-This project is licensed under the [Mozilla Public License 2.0](https://mozilla.org/MPL/2.0/).
+This project is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 Copyright (c) 2026 Pointmatic

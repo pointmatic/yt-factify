@@ -55,7 +55,7 @@ This document defines **how** yt-factify is built — architecture, module layou
 
 ```
 yt-factify/
-├── LICENSE                          # MPL-2.0
+├── LICENSE                          # Apache-2.0
 ├── README.md                        # Project overview, install, usage
 ├── pyproject.toml                   # Package metadata, deps, tool config
 ├── Makefile                         # Dev tasks: lint, test, format, typecheck

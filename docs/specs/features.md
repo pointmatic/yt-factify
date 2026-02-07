@@ -335,7 +335,7 @@ The tool must manage its interactions with external services (YouTube transcript
 
 1. **API keys** — LLM API keys must never be logged or included in output. Prefer environment variables over CLI flags for secrets.
 2. **No data exfiltration** — The tool sends transcript text to the configured LLM API and nowhere else. No telemetry, no analytics.
-3. **License compliance** — All source files carry the MPL-2.0 header. Third-party dependencies must have compatible licenses.
+3. **License compliance** — All source files carry the Apache-2.0 header. Third-party dependencies must have compatible licenses.
 
 ---
 

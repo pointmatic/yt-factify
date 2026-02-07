@@ -10,7 +10,7 @@ Before starting, the developer must provide:
 
 1. **A project idea** — a short description of what the project should do (a few sentences to a few paragraphs).
 2. **Language / runtime** — e.g. Python 3.14, Node 22, Go 1.23, etc.
-3. **License preference** — e.g. MPL-2.0, MIT, Apache-2.0, GPL-3.0. If a `LICENSE` file already exists in the project root, that license prevails.
+3. **License preference** — e.g. Apache-2.0, MIT, MPL-2.0, GPL-3.0. If a `LICENSE` file already exists in the project root, that license prevails.
 
 The developer may optionally provide:
 
@@ -42,20 +42,28 @@ Before writing any spec documents, handle project scaffolding:
 
 1. If a `LICENSE` file exists in the project root, read it and identify the license.
 2. If no `LICENSE` file exists, create one based on the developer's preference.
-3. Record the license identifier (SPDX format, e.g. `MPL-2.0`) — this will be used in `pyproject.toml` (or equivalent) and in file headers.
+3. Record the license identifier (SPDX format, e.g. `Apache-2.0`) — this will be used in `pyproject.toml` (or equivalent) and in file headers.
 
 ### Copyright and License Header
 
 Every source file in the project must carry a standard copyright and license header. The header format depends on the license and the file's comment syntax.
 
-**Example for MPL-2.0 in a Python file:**
+**Example for Apache-2.0 in a Python file:**
 
 ```python
 # Copyright (c) <year> <copyright holder>
 #
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 ```
 
 **Example for MIT in a Python file:**
