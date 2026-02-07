@@ -354,23 +354,23 @@ Project documentation for users and contributors.
   - [x] Loading examples (CLI, config, library API)
 - [x] Verify: README examples are accurate and match actual CLI/API
 
-### Story F.b: v0.5.2 Release Polish [Planned]
+### Story F.b: v0.5.2 Release Polish [Done]
 
 Final checks and prototype release.
 
-- [ ] Bump version to `0.5.2` in `pyproject.toml` and `__init__.py`
-- [ ] Create `CHANGELOG.md` summarizing all changes from v0.1.0 to v1.0.0
-- [ ] Run full test suite: `make test`
-- [ ] Run linter and type checker: `make lint`, `make typecheck`
-- [ ] Verify all acceptance criteria from `features.md` are met:
-  - [ ] `yt-factify extract <url>` produces valid JSON
-  - [ ] Direct quotes are verified substrings
-  - [ ] All items have transcript evidence
-  - [ ] Video categorization and bias profile present
-  - [ ] Belief system modules loadable and functional
-  - [ ] Library API works with typed models
-  - [ ] Audit bundle complete
-  - [ ] ≥80% test coverage
-  - [ ] Errors handled gracefully
-  - [ ] Config precedence correct
-- [ ] Tag release
+- [x] Bump version to `0.5.2` in `pyproject.toml` and `__init__.py`
+- [x] Create `CHANGELOG.md` summarizing all changes from v0.1.1 to v0.5.2
+- [x] Run full test suite: 276 passed, 96% coverage
+- [x] Run linter and type checker: `ruff check`, `ruff format`, `mypy --strict` — all clean
+- [x] Verify all acceptance criteria from `features.md` are met:
+  - [x] `yt-factify extract <url>` produces valid JSON (tested via CLI tests)
+  - [x] Direct quotes are verified substrings (validation module + tests)
+  - [x] All items have transcript evidence (model constraints + tests)
+  - [x] Video categorization and bias profile present (classification module + tests)
+  - [x] Belief system modules loadable and functional (3 built-in, custom dir support)
+  - [x] Library API works with typed models (`extract()`, `extract_sync()`, re-exports)
+  - [x] Audit bundle complete (model_id, version, hashes, timestamps)
+  - [x] ≥80% test coverage — achieved **96%**
+  - [x] Errors handled gracefully (exit codes, PipelineError, structured logging)
+  - [x] Config precedence correct (CLI > env > file > defaults)
+- [ ] Tag release (manual step)

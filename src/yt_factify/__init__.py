@@ -4,7 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""yt-factify: Extract structured, auditable facts, quotes, topic threads, and biases from YouTube video transcripts.
+"""yt-factify: Extract auditable facts, quotes, topics, and biases from YouTube transcripts.
 
 Library API
 -----------
@@ -41,7 +41,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     pass
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 
 
 # Re-exports for public API

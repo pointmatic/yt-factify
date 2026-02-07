@@ -1,6 +1,6 @@
 # yt-factify
 
-Extract structured, auditable facts, quotes, topic threads, and biases from YouTube video transcripts.
+Extract auditable facts, quotes, topics, and biases from YouTube transcripts.
 
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://mozilla.org/MPL/2.0/)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)

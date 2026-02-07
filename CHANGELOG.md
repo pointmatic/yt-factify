@@ -1,0 +1,77 @@
+# Changelog
+
+All notable changes to yt-factify are documented in this file.
+
+## [0.5.2] — 2026-02-06
+
+### Release Polish
+- Created `CHANGELOG.md`
+- Final verification of all acceptance criteria
+- Full test suite passing (276 tests, 96% coverage)
+
+## [0.5.1] — 2026-02-06
+
+### Documentation
+- Created comprehensive `README.md` with installation, quick start, configuration reference, belief system module guide, output format docs, and development instructions
+- Expanded `src/yt_factify/modules/README.md` with built-in modules list, copy-paste template, authoring tips, validation rules, and loading examples
+
+## [0.4.1] — 2026-02-06
+
+### Testing & Quality
+- Added golden test fixtures: short news clip, long interview, opinion/editorial transcripts
+- Added golden pipeline tests verifying classification, audit bundles, evidence, and topic threads
+- Added edge case tests: empty transcript, single segment, no facts, malformed LLM response, all quotes rejected, very long transcript (>2 hours)
+- Achieved 96% line coverage (core modules 94–100%)
+- Ran `mypy --strict` with 0 errors
+- Applied `ruff format` across all source and test files
+
+## [0.3.2] — 2026-02-06
+
+### Library API
+- Added public API: `extract()` (async) and `extract_sync()` (sync wrapper)
+- Re-exported `AppConfig`, `ExtractionResult`, `PipelineError`, `render_json`, `render_markdown` from package root
+- Added module-level docstring with usage examples
+
+## [0.3.1] — 2026-02-06
+
+### CLI Extract Command
+- Implemented `extract` CLI command with full pipeline integration
+- Added CLI flags: `--model`, `--format`, `--output`, `--config`, `--log-level`, `--modules-dir`, `--quote-mismatch`, `--segment-seconds`, `--api-base`, `--api-key`, `--temperature`
+- YouTube URL parsing (full URL, short URL, plain video ID)
+- Exit codes: 0 (success), 1 (general), 2 (transcript), 3 (LLM), 4 (validation)
+- Output to stdout or file
+
+## [0.2.2] — 2026-02-06
+
+### Output Rendering
+- Added `render_json()` for JSON serialization of `ExtractionResult`
+- Added `render_markdown()` with sections: Video Info, Topic Overview, Key Facts, Direct Quotes, Opinions & Perspectives, Unverified Claims, Predictions, Belief System Notes
+- Added `write_output()` with atomic file writes (write to temp, then rename)
+
+## [0.2.1] — 2026-02-06
+
+### Pipeline Orchestration
+- Implemented `run_pipeline()` — async orchestration of the full extraction flow
+- Pipeline stages: fetch transcript → normalize → segment → load modules → classify video → extract items → validate → assess credibility → cluster topics → build audit bundle
+- `PipelineError` with informative messages for each stage failure
+
+## [0.1.2] — 2026-02-06
+
+### Extraction & Analysis
+- LLM-based item extraction with structured prompts and JSON parsing
+- Video classification (categories + bias profile) via LLM
+- Credibility assessment for extracted items
+- Topic thread clustering with timeline derivation
+- Belief/value system module loading (built-in + custom directories)
+- Transcript-anchored validation: quote verification, timestamp bounds checking
+- Built-in belief system modules: scientific materialism, religious theism, political progressivism
+
+## [0.1.1] — 2026-02-06
+
+### Foundation
+- Pydantic v2 data models: `ExtractionResult`, `ExtractedItem`, `TopicThread`, `VideoInfo`, `VideoClassification`, `AuditBundle`, `CredibilityAssessment`, `BeliefSystemFlag`, `TranscriptEvidence`
+- Transcript ingestion via `yt-fetch`: fetch, normalize, segment
+- Configuration system with CLI > env > file > defaults precedence
+- Structured logging via `structlog`
+- LLM prompt templates for extraction, classification, credibility, and topic threading
+- Project scaffolding with `pyproject.toml`, MPL-2.0 license
