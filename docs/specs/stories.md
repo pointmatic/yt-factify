@@ -209,12 +209,12 @@ Cluster extracted items into topic threads to capture conversational structure.
 
 ## Phase C: Pipeline & Orchestration
 
-### Story C.a: v0.2.1 Pipeline Orchestration [Planned]
+### Story C.a: v0.2.1 Pipeline Orchestration [Done]
 
 Wire all services together into the full extraction pipeline.
 
-- [ ] Create `src/yt_factify/pipeline.py`
-  - [ ] `run_pipeline()` — async, orchestrates the full flow:
+- [x] Create `src/yt_factify/pipeline.py`
+  - [x] `run_pipeline()` — async, orchestrates the full flow:
     1. Fetch and normalize transcript
     2. Segment transcript
     3. Load belief/value system modules
@@ -225,13 +225,13 @@ Wire all services together into the full extraction pipeline.
     8. Cluster topic threads
     9. Build audit bundle
     10. Return `ExtractionResult`
-  - [ ] Proper error handling at each stage with informative messages
-- [ ] Create `tests/test_pipeline.py`
-  - [ ] Test full pipeline with fixture transcript and mocked LLM
-  - [ ] Test pipeline error handling (transcript fetch failure, LLM failure, validation failure)
-  - [ ] Test audit bundle is complete
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all pipeline tests pass
+  - [x] Proper error handling at each stage with informative messages
+- [x] Create `tests/test_pipeline.py`
+  - [x] Test full pipeline with fixture transcript and mocked LLM
+  - [x] Test pipeline error handling (transcript fetch failure, LLM failure, validation failure)
+  - [x] Test audit bundle is complete
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all pipeline tests pass
 
 ### Story C.b: v0.2.2 Output Rendering [Planned]
 
