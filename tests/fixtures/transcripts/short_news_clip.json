@@ -1,0 +1,12 @@
+{
+  "video_id": "news789",
+  "language": "en",
+  "segments": [
+    {"text": "Breaking news tonight. The Federal Reserve has announced a quarter-point interest rate cut.", "start_ms": 0, "end_ms": 5000},
+    {"text": "This is the first rate cut in over two years.", "start_ms": 5000, "end_ms": 9000},
+    {"text": "Fed Chair stated that inflation has cooled sufficiently to warrant the move.", "start_ms": 9000, "end_ms": 14000},
+    {"text": "Markets reacted positively with the S&P 500 rising 1.2 percent.", "start_ms": 14000, "end_ms": 19000},
+    {"text": "Economists had widely expected this decision.", "start_ms": 19000, "end_ms": 23000},
+    {"text": "Some analysts warn that more cuts may be needed to sustain growth.", "start_ms": 23000, "end_ms": 28000}
+  ]
+}

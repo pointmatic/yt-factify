@@ -1,0 +1,14 @@
+{
+  "video_id": "opinion101",
+  "language": "en",
+  "segments": [
+    {"text": "Let me tell you why universal basic income is the only solution to automation.", "start_ms": 0, "end_ms": 5000},
+    {"text": "Every major study shows that automation will eliminate 40 percent of jobs.", "start_ms": 5000, "end_ms": 10000},
+    {"text": "The government has a moral obligation to protect its citizens.", "start_ms": 10000, "end_ms": 15000},
+    {"text": "Critics say UBI is too expensive but they ignore the cost of doing nothing.", "start_ms": 15000, "end_ms": 20000},
+    {"text": "Finland's UBI pilot showed improved well-being and employment outcomes.", "start_ms": 20000, "end_ms": 25000},
+    {"text": "Andrew Yang said and I quote UBI is not left or right it is forward.", "start_ms": 25000, "end_ms": 30000},
+    {"text": "I predict that within ten years every developed nation will have some form of UBI.", "start_ms": 30000, "end_ms": 35000},
+    {"text": "The only question is whether we act now or wait until it is too late.", "start_ms": 35000, "end_ms": 40000}
+  ]
+}

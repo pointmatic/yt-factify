@@ -3,6 +3,7 @@ __pycache__
 .DS_Store
 .archive
 *.egg-info
+.coverage
 .venv
 .env
 .envrc
