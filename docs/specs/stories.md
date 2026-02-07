@@ -253,24 +253,24 @@ JSON and Markdown output rendering.
 
 ## Phase D: CLI & Library API
 
-### Story D.a: v0.3.1 CLI Extract Command [Planned]
+### Story D.a: v0.3.1 CLI Extract Command [Done]
 
 Wire the pipeline into the CLI `extract` command.
 
-- [ ] Update `src/yt_factify/cli.py`
-  - [ ] Implement `extract` command: parse video URL/ID, load config, run pipeline, render output
-  - [ ] Add all CLI flags from tech spec (`--model`, `--format`, `--output`, `--modules-dir`, etc.)
-  - [ ] Progress indicators via Rich (transcript fetch, extraction, validation)
-  - [ ] Exit codes: 0 (success), 1 (general), 2 (transcript), 3 (LLM), 4 (validation)
-  - [ ] Write output to stdout or file per `--output` flag
-- [ ] Create `tests/test_cli.py`
-  - [ ] Test `extract` with mocked pipeline (JSON output)
-  - [ ] Test `extract` with `--format markdown`
-  - [ ] Test `extract` with `--output` file
-  - [ ] Test exit codes for various failure modes
-  - [ ] Test `--help` output
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: `yt-factify extract <video-id> --model <model>` produces valid JSON output (with mocked deps)
+- [x] Update `src/yt_factify/cli.py`
+  - [x] Implement `extract` command: parse video URL/ID, load config, run pipeline, render output
+  - [x] Add all CLI flags from tech spec (`--model`, `--format`, `--output`, `--modules-dir`, etc.)
+  - [x] Exit codes: 0 (success), 1 (general), 2 (transcript), 3 (LLM), 4 (validation)
+  - [x] Write output to stdout or file per `--output` flag
+- [x] Create `tests/test_cli.py`
+  - [x] Test `extract` with mocked pipeline (JSON output)
+  - [x] Test `extract` with `--format markdown`
+  - [x] Test `extract` with `--output` file
+  - [x] Test exit codes for various failure modes
+  - [x] Test `--help` output
+  - [x] Test URL parsing (full URL, short URL, plain ID)
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: `yt-factify extract <video-id> --model <model>` produces valid JSON output (with mocked deps)
 
 ### Story D.b: v0.3.2 Library API [Planned]
 

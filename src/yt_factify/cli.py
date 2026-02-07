@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +18,13 @@ import click
 from yt_factify import __version__
 from yt_factify.config import load_config
 from yt_factify.logging import get_logger, setup_logging
+
+# Exit codes
+EXIT_SUCCESS = 0
+EXIT_GENERAL = 1
+EXIT_TRANSCRIPT = 2
+EXIT_LLM = 3
+EXIT_VALIDATION = 4
 
 
 @click.group()
@@ -109,5 +118,65 @@ def extract(video: str, **kwargs: Any) -> None:
     log = get_logger("cli")
 
     log.info("starting extraction", video=video, model=config.model)
-    # Pipeline execution will be wired in Story D.a
-    click.echo(f"[placeholder] Would extract from: {video}")
+
+    # Resolve video ID from URL or plain ID
+    video_id = _parse_video_id(video)
+
+    # Run the pipeline
+    from yt_factify.pipeline import PipelineError, run_pipeline
+    from yt_factify.rendering import render_json, render_markdown, write_output
+    from yt_factify.transcript import EmptyTranscriptError, TranscriptFetchError
+
+    try:
+        result = asyncio.run(run_pipeline(video_id, config))
+    except PipelineError as exc:
+        error_msg = str(exc)
+        exit_code = _classify_error(error_msg)
+        log.error("pipeline_failed", error=error_msg, exit_code=exit_code)
+        click.echo(f"Error: {error_msg}", err=True)
+        sys.exit(exit_code)
+    except (TranscriptFetchError, EmptyTranscriptError) as exc:
+        log.error("transcript_error", error=str(exc))
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(EXIT_TRANSCRIPT)
+    except Exception as exc:
+        log.error("unexpected_error", error=str(exc))
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(EXIT_GENERAL)
+
+    # Render output
+    fmt = config.output_format
+    output = render_markdown(result) if fmt == "markdown" else render_json(result)
+
+    # Write to file or stdout
+    if config.output_path:
+        write_output(output, Path(config.output_path))
+        click.echo(f"Output written to {config.output_path}")
+    else:
+        click.echo(output)
+
+
+def _parse_video_id(video: str) -> str:
+    """Extract video ID from a YouTube URL or return as-is."""
+    import re
+
+    patterns = [
+        r"(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, video)
+        if match:
+            return match.group(1)
+    return video
+
+
+def _classify_error(error_msg: str) -> int:
+    """Map a PipelineError message to an exit code."""
+    lower = error_msg.lower()
+    if "transcript" in lower or "fetch" in lower:
+        return EXIT_TRANSCRIPT
+    if "classify" in lower or "extract" in lower or "credibility" in lower:
+        return EXIT_LLM
+    if "validat" in lower:
+        return EXIT_VALIDATION
+    return EXIT_GENERAL
