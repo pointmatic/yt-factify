@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import re
 import unicodedata
+from datetime import date
 
 from yt_factify.config import AppConfig
 from yt_factify.models import (
@@ -19,6 +20,7 @@ from yt_factify.models import (
     RawTranscript,
     TranscriptSegment,
     TranscriptSegmentRaw,
+    VideoMetadata,
 )
 
 
@@ -42,17 +44,58 @@ def _normalize_text(text: str) -> str:
     return text.strip()
 
 
+def _upload_date_hint(metadata: VideoMetadata | None) -> str:
+    """Return a human-readable hint based on video upload date."""
+    if metadata is None or metadata.upload_date is None:
+        return "The video may lack captions or they may be disabled."
+
+    try:
+        upload = date.fromisoformat(metadata.upload_date)
+    except ValueError:
+        return "The video may lack captions or they may be disabled."
+
+    age_days = (date.today() - upload).days
+
+    if age_days < 1:
+        return (
+            "This video was uploaded within the last 24 hours — "
+            "captions may not be available yet. Try again later."
+        )
+    elif age_days <= 7:
+        return (
+            "This video was uploaded recently — auto-generated captions may still be processing."
+        )
+    else:
+        return "The video may lack captions or they may be disabled."
+
+
+def _build_video_metadata(result: object) -> VideoMetadata | None:
+    """Build a VideoMetadata from a yt-fetch FetchResult, if metadata is present."""
+    meta = getattr(result, "metadata", None)
+    if meta is None:
+        return None
+    return VideoMetadata(
+        title=getattr(meta, "title", None),
+        channel_id=getattr(meta, "channel_id", None),
+        channel_title=getattr(meta, "channel_title", None),
+        upload_date=getattr(meta, "upload_date", None),
+        duration_seconds=getattr(meta, "duration_seconds", None),
+        fetched_at=str(getattr(meta, "fetched_at", None)),
+    )
+
+
 def fetch_transcript(video_id: str, config: AppConfig) -> RawTranscript:
     """Fetch transcript via yt-fetch and return raw data.
 
-    Calls ``yt_fetch.fetch_video()`` to retrieve transcript segments.
+    Calls ``yt_fetch.fetch_video()`` to retrieve transcript segments
+    and video metadata.
 
     Args:
         video_id: YouTube video ID.
         config: Application configuration.
 
     Returns:
-        A ``RawTranscript`` with raw segment data.
+        A ``RawTranscript`` with raw segment data and optional metadata.
 
     Raises:
         TranscriptFetchError: If the video or transcript is unavailable.
@@ -65,16 +108,22 @@ def fetch_transcript(video_id: str, config: AppConfig) -> RawTranscript:
         ) from exc
 
     opts = FetchOptions(
-        languages=["en"],
+        languages=config.languages,
         allow_generated=True,
         download="none",
     )
 
     result = fetch_video(video_id, opts)
 
-    if not result.success or result.transcript is None:
+    video_metadata = _build_video_metadata(result)
+
+    if not result.success:
         errors = "; ".join(result.errors) if result.errors else "unknown error"
         raise TranscriptFetchError(f"Failed to fetch transcript for {video_id}: {errors}")
+
+    if result.transcript is None:
+        hint = _upload_date_hint(video_metadata)
+        raise TranscriptFetchError(f"No transcript available for {video_id}. {hint}")
 
     segments = [
         TranscriptSegmentRaw(
@@ -89,6 +138,7 @@ def fetch_transcript(video_id: str, config: AppConfig) -> RawTranscript:
         video_id=video_id,
         segments=segments,
         language=result.transcript.language,
+        metadata=video_metadata,
     )
 
 

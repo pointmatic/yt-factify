@@ -42,6 +42,7 @@ class AppConfig(BaseModel):
     segment_seconds: int = Field(default=45, ge=1)
     max_concurrent_requests: int = Field(default=3, ge=1)
     max_retries: int = Field(default=3, ge=0)
+    languages: list[str] = Field(default_factory=lambda: ["en"])
 
 
 ENV_PREFIX = "YT_FACTIFY_"
@@ -58,6 +59,7 @@ _ENV_FIELD_MAP: dict[str, str] = {
     "YT_FACTIFY_SEGMENT_SECONDS": "segment_seconds",
     "YT_FACTIFY_MAX_CONCURRENT": "max_concurrent_requests",
     "YT_FACTIFY_MAX_RETRIES": "max_retries",
+    "YT_FACTIFY_LANGUAGES": "languages",
 }
 
 

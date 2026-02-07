@@ -59,6 +59,17 @@ class QuoteMismatchBehavior(StrEnum):
 # ---------------------------------------------------------------------------
 
 
+class VideoMetadata(BaseModel):
+    """Metadata about the source video, from yt-fetch."""
+
+    title: str | None = None
+    channel_id: str | None = None
+    channel_title: str | None = None
+    upload_date: str | None = None
+    duration_seconds: float | None = None
+    fetched_at: str | None = None
+
+
 class TranscriptSegmentRaw(BaseModel):
     """A single segment from yt-fetch transcript output."""
 
@@ -73,6 +84,7 @@ class RawTranscript(BaseModel):
     video_id: str
     segments: list[TranscriptSegmentRaw]
     language: str | None = None
+    metadata: VideoMetadata | None = None
 
 
 class NormalizedSegment(BaseModel):

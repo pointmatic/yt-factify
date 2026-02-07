@@ -90,6 +90,12 @@ def version() -> None:
 @click.option("--api-base", default=None, help="LLM API base URL.")
 @click.option("--api-key", default=None, help="LLM API key (prefer env var YT_FACTIFY_API_KEY).")
 @click.option("--temperature", type=float, default=None, help="LLM temperature (default: 0.0).")
+@click.option(
+    "--language",
+    "languages",
+    multiple=True,
+    help="Transcript language code (repeatable, default: en).",
+)
 def extract(video: str, **kwargs: Any) -> None:
     """Extract facts, quotes, and claims from a YouTube video."""
     cli_overrides: dict[str, Any] = {}
@@ -113,6 +119,8 @@ def extract(video: str, **kwargs: Any) -> None:
         cli_overrides["temperature"] = kwargs["temperature"]
     if kwargs.get("model") is not None:
         cli_overrides["model"] = kwargs["model"]
+    if kwargs.get("languages"):
+        cli_overrides["languages"] = list(kwargs["languages"])
 
     config_file = Path(kwargs["config_path"]) if kwargs.get("config_path") else None
     config = load_config(cli_overrides=cli_overrides, config_path=config_file)

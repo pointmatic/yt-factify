@@ -2,6 +2,21 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.5.4] — 2026-02-07
+
+### Transcript Fetch Diagnostics
+- Updated `yt-fetch` dependency to v0.5.2 (fixes `transcript=None` and `metadata=None` bugs)
+- Added `VideoMetadata` model for video metadata passthrough (title, channel, upload date)
+- `RawTranscript` now carries optional `metadata` from yt-fetch
+- Upload-date heuristic in transcript error messages:
+  - <24h: "captions may not be available yet"
+  - 1–7 days: "auto-generated captions may still be processing"
+  - >7 days: "may lack captions or they may be disabled"
+- Split error handling: `success=False` vs `transcript=None` now have distinct messages
+- Pipeline now populates `VideoInfo.title` from yt-fetch metadata
+- Added `languages` config field (default: `["en"]`) and `--language` CLI flag (repeatable)
+- 8 new tests (284 total)
+
 ## [0.5.3] — 2026-02-06
 
 ### Rate-Limit Resilience

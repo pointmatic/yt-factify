@@ -41,7 +41,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     pass
 
-__version__ = "0.5.3"
+__version__ = "0.5.4"
 
 
 # Re-exports for public API

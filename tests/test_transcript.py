@@ -19,12 +19,14 @@ from yt_factify.models import (
     NormalizedTranscript,
     RawTranscript,
     TranscriptSegmentRaw,
+    VideoMetadata,
 )
 from yt_factify.transcript import (
     EmptyTranscriptError,
     TranscriptFetchError,
     _normalize_text,
     _sha256,
+    _upload_date_hint,
     fetch_transcript,
     normalize_transcript,
     segment_transcript,
@@ -230,6 +232,7 @@ class TestFetchTranscript:
         mock_result.success = True
         mock_result.transcript = mock_transcript
         mock_result.errors = []
+        mock_result.metadata = None
 
         mock_yt_fetch = MagicMock()
         mock_yt_fetch.fetch_video.return_value = mock_result
@@ -244,12 +247,14 @@ class TestFetchTranscript:
             assert result.segments[0].start_ms == 0
             assert result.segments[0].end_ms == 5000
             assert result.language == "en"
+            assert result.metadata is None
 
     def test_failed_fetch_raises(self) -> None:
         mock_result = MagicMock()
         mock_result.success = False
         mock_result.transcript = None
         mock_result.errors = ["Video not found"]
+        mock_result.metadata = None
 
         mock_yt_fetch = MagicMock()
         mock_yt_fetch.fetch_video.return_value = mock_result
@@ -265,6 +270,7 @@ class TestFetchTranscript:
         mock_result.success = True
         mock_result.transcript = None
         mock_result.errors = []
+        mock_result.metadata = None
 
         mock_yt_fetch = MagicMock()
         mock_yt_fetch.fetch_video.return_value = mock_result
@@ -274,3 +280,103 @@ class TestFetchTranscript:
             config = AppConfig()
             with pytest.raises(TranscriptFetchError):
                 fetch_transcript("no_transcript", config)
+
+    def test_metadata_passthrough(self) -> None:
+        mock_segment = MagicMock()
+        mock_segment.text = "Hello"
+        mock_segment.start = 0.0
+        mock_segment.duration = 5.0
+
+        mock_transcript = MagicMock()
+        mock_transcript.segments = [mock_segment]
+        mock_transcript.language = "en"
+
+        mock_metadata = MagicMock()
+        mock_metadata.title = "Test Video"
+        mock_metadata.channel_id = "UC123"
+        mock_metadata.channel_title = "Test Channel"
+        mock_metadata.upload_date = "2025-06-15"
+        mock_metadata.duration_seconds = 120.0
+        mock_metadata.fetched_at = "2025-06-15T12:00:00Z"
+
+        mock_result = MagicMock()
+        mock_result.success = True
+        mock_result.transcript = mock_transcript
+        mock_result.errors = []
+        mock_result.metadata = mock_metadata
+
+        mock_yt_fetch = MagicMock()
+        mock_yt_fetch.fetch_video.return_value = mock_result
+        mock_yt_fetch.FetchOptions = MagicMock()
+
+        with patch.dict("sys.modules", {"yt_fetch": mock_yt_fetch}):
+            config = AppConfig()
+            result = fetch_transcript("test123", config)
+            assert result.metadata is not None
+            assert result.metadata.title == "Test Video"
+            assert result.metadata.channel_id == "UC123"
+            assert result.metadata.channel_title == "Test Channel"
+            assert result.metadata.upload_date == "2025-06-15"
+            assert result.metadata.duration_seconds == 120.0
+
+    def test_configurable_languages(self) -> None:
+        mock_segment = MagicMock()
+        mock_segment.text = "Bonjour"
+        mock_segment.start = 0.0
+        mock_segment.duration = 3.0
+
+        mock_transcript = MagicMock()
+        mock_transcript.segments = [mock_segment]
+        mock_transcript.language = "fr"
+
+        mock_result = MagicMock()
+        mock_result.success = True
+        mock_result.transcript = mock_transcript
+        mock_result.errors = []
+        mock_result.metadata = None
+
+        mock_yt_fetch = MagicMock()
+        mock_yt_fetch.fetch_video.return_value = mock_result
+        mock_yt_fetch.FetchOptions = MagicMock()
+
+        with patch.dict("sys.modules", {"yt_fetch": mock_yt_fetch}):
+            config = AppConfig(languages=["fr"])
+            result = fetch_transcript("french_vid", config)
+            assert result.language == "fr"
+            # Verify FetchOptions was called with the right languages
+            call_kwargs = mock_yt_fetch.FetchOptions.call_args
+            assert call_kwargs.kwargs["languages"] == ["fr"]
+
+
+class TestUploadDateHint:
+    def test_no_metadata(self) -> None:
+        assert "may lack captions" in _upload_date_hint(None)
+
+    def test_no_upload_date(self) -> None:
+        meta = VideoMetadata()
+        assert "may lack captions" in _upload_date_hint(meta)
+
+    def test_invalid_upload_date(self) -> None:
+        meta = VideoMetadata(upload_date="not-a-date")
+        assert "may lack captions" in _upload_date_hint(meta)
+
+    def test_recent_upload_under_24h(self) -> None:
+        from datetime import date
+
+        today = date.today().isoformat()
+        meta = VideoMetadata(upload_date=today)
+        hint = _upload_date_hint(meta)
+        assert "within the last 24 hours" in hint
+
+    def test_recent_upload_within_week(self) -> None:
+        from datetime import date, timedelta
+
+        three_days_ago = (date.today() - timedelta(days=3)).isoformat()
+        meta = VideoMetadata(upload_date=three_days_ago)
+        hint = _upload_date_hint(meta)
+        assert "uploaded recently" in hint
+
+    def test_old_upload(self) -> None:
+        meta = VideoMetadata(upload_date="2020-01-01")
+        hint = _upload_date_hint(meta)
+        assert "may lack captions" in hint

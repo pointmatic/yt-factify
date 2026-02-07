@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yt-factify"
-version = "0.5.3"
+version = "0.5.4"
 description = "Extract structured, auditable facts, quotes, topic threads, and biases from YouTube video transcripts"
 license = "MPL-2.0"
 requires-python = ">=3.14"

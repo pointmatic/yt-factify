@@ -396,6 +396,71 @@ Centralized LLM call helper with robust rate-limit handling.
 - [x] Update `CHANGELOG.md`
 - [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (276 tests)
 
+### Story F.d: v0.5.4 Transcript Fetch Diagnostics [Done]
+
+Improve transcript fetch error messages with upload-date heuristics and split error conditions.
+
+- [x] Split `fetch_transcript` error handling into distinct branches:
+  - [x] `success=False` → report provider errors
+  - [x] `success=True, transcript=None` → "No transcript available" with actionable guidance
+- [x] Update `yt-fetch` to v0.5.2 (fixes `transcript=None` and `metadata=None` bugs)
+- [x] Add `VideoMetadata` model and `metadata` field on `RawTranscript`
+- [x] Retrieve video upload date via `yt_fetch` metadata
+  - [x] If upload date is within 24 hours, include a hint: "captions may not be available yet. Try again later."
+  - [x] If upload date is 1–7 days old, hint: "auto-generated captions may still be processing."
+  - [x] If upload date is older or unavailable, fall back to the generic message
+- [x] Add `languages` config field (default: `["en"]`) and `--language` CLI flag (repeatable)
+- [x] Pipeline now populates `VideoInfo.title` from yt-fetch metadata
+- [x] Update tests:
+  - [x] Test recent-upload heuristic message (<24h)
+  - [x] Test recent-upload heuristic message (1–7 days)
+  - [x] Test old-upload message
+  - [x] Test upload-date-unavailable fallback
+  - [x] Test invalid upload date fallback
+  - [x] Test metadata passthrough
+  - [x] Test configurable languages
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (284 tests)
+- [x] Bump version to `0.5.4`
+- [x] Update `CHANGELOG.md`
+- [ ] `--min-upload-age` CLI flag — deferred to future story
+
+### Story F.e: v0.5.5 Channel Fetch Ledger [Planned]
+
+Per-channel ledger tracking the most recent transcript fetch success and failure, scoped to channel ID to avoid unbounded growth.
+
+- [ ] Define `ChannelFetchRecord` Pydantic model:
+  - [ ] `channel_id: str`
+  - [ ] `channel_name: str | None`
+  - [ ] `last_success: FetchAttempt | None`
+  - [ ] `last_failure: FetchAttempt | None`
+- [ ] Define `FetchAttempt` Pydantic model:
+  - [ ] `video_id: str`
+  - [ ] `upload_date: str | None` (ISO 8601)
+  - [ ] `attempted_at: str` (ISO 8601 timestamp)
+  - [ ] `error: str | None` (only for failures)
+- [ ] Create `src/yt_factify/ledger.py` module:
+  - [ ] `load_ledger(path: Path) -> dict[str, ChannelFetchRecord]` — read JSON ledger file
+  - [ ] `save_ledger(path: Path, ledger: dict[str, ChannelFetchRecord])` — atomic write
+  - [ ] `record_success(ledger, channel_id, channel_name, video_id, upload_date)` — update last_success
+  - [ ] `record_failure(ledger, channel_id, channel_name, video_id, upload_date, error)` — update last_failure
+- [ ] Default ledger location: `~/.config/yt-factify/channel_ledger.json`
+  - [ ] Configurable via `AppConfig.ledger_path` / `--ledger-path` CLI flag
+  - [ ] `--no-ledger` flag to disable ledger writes entirely
+- [ ] Integrate into pipeline:
+  - [ ] After successful transcript fetch, record success with channel ID, video ID, upload date
+  - [ ] After failed transcript fetch, record failure with channel ID, video ID, upload date, error
+  - [ ] Extract channel ID from `yt_fetch` result metadata (if available)
+- [ ] Add `yt-factify ledger` CLI subcommand (read-only):
+  - [ ] `yt-factify ledger show` — display all channel records as a table or JSON
+  - [ ] `yt-factify ledger show <channel_id>` — display a single channel's record
+- [ ] Design constraint: one record per channel ID (no per-attempt history) to keep the file small
+- [ ] Update tests:
+  - [ ] Test ledger load/save round-trip
+  - [ ] Test record_success and record_failure update semantics
+  - [ ] Test ledger disabled via `--no-ledger`
+  - [ ] Test missing/corrupt ledger file handled gracefully
+- [ ] Verify: `ruff check`, `mypy --strict`, `pytest` — all pass
+
 ---
 
 ## Phase G: CI/CD

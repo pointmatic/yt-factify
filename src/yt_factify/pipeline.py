@@ -71,11 +71,14 @@ async def run_pipeline(
     # 1. Fetch and normalize transcript
     try:
         raw_transcript = fetch_transcript(video_id, config)
+        video_metadata = raw_transcript.metadata
         transcript = normalize_transcript(raw_transcript)
         logger.info(
             "transcript_ready",
             video_id=video_id,
             segment_count=len(transcript.segments),
+            title=video_metadata.title if video_metadata else None,
+            channel=video_metadata.channel_title if video_metadata else None,
         )
     except Exception as exc:
         raise PipelineError(f"Failed to fetch/normalize transcript for {video_id}: {exc}") from exc
@@ -165,7 +168,7 @@ async def run_pipeline(
     # 10. Build and return ExtractionResult
     video_info = VideoInfo(
         video_id=video_id,
-        title=None,
+        title=video_metadata.title if video_metadata else None,
         url=f"https://www.youtube.com/watch?v={video_id}",
         transcript_hash=transcript.hash,
         fetched_at=datetime.now(tz=UTC),
