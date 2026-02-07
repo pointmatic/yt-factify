@@ -23,6 +23,7 @@ from yt_factify.models import (
     ExtractionResult,
     VideoInfo,
 )
+from yt_factify.throttle import AdaptiveThrottle
 from yt_factify.topics import cluster_topic_threads
 from yt_factify.transcript import (
     fetch_transcript,
@@ -104,13 +105,19 @@ async def run_pipeline(
         builtin_count=len(belief_modules),
     )
 
-    # 4. Classify video (category + bias)
+    # 4. Initialize adaptive throttle for LLM calls
+    throttle = AdaptiveThrottle(
+        max_concurrency=config.max_concurrent_requests,
+        total_tasks=len(segments),
+    )
+
+    # 5. Classify video (category + bias)
     try:
-        classification = await classify_video(transcript, config)
+        classification = await classify_video(transcript, config, throttle=throttle)
     except Exception as exc:
         raise PipelineError(f"Failed to classify video {video_id}: {exc}") from exc
 
-    # 5. Extract items from segments (concurrent)
+    # 6. Extract items from segments (concurrent)
     try:
         raw_items = await extract_items(
             segments=segments,
@@ -118,6 +125,7 @@ async def run_pipeline(
             categories=classification.categories,
             belief_modules=belief_modules,
             config=config,
+            throttle=throttle,
         )
         logger.info(
             "items_extracted",
@@ -127,7 +135,7 @@ async def run_pipeline(
     except Exception as exc:
         raise PipelineError(f"Failed to extract items for {video_id}: {exc}") from exc
 
-    # 6. Validate items
+    # 7. Validate items
     try:
         validation_result = validate_items(raw_items, transcript, config)
         validated_items = validation_result.accepted
@@ -141,19 +149,21 @@ async def run_pipeline(
     except Exception as exc:
         raise PipelineError(f"Failed to validate items for {video_id}: {exc}") from exc
 
-    # 7. Assess credibility of validated items
+    # 8. Assess credibility of validated items
     try:
-        assessed_items = await assess_credibility(validated_items, belief_modules, config)
+        assessed_items = await assess_credibility(
+            validated_items, belief_modules, config, throttle=throttle
+        )
     except Exception as exc:
         raise PipelineError(f"Failed to assess credibility for {video_id}: {exc}") from exc
 
-    # 8. Cluster topic threads from validated items
+    # 9. Cluster topic threads from validated items
     try:
-        topic_threads = await cluster_topic_threads(assessed_items, config)
+        topic_threads = await cluster_topic_threads(assessed_items, config, throttle=throttle)
     except Exception as exc:
         raise PipelineError(f"Failed to cluster topic threads for {video_id}: {exc}") from exc
 
-    # 9. Build audit bundle
+    # 10. Build audit bundle
     segment_hashes = [seg.hash for seg in segments]
     prompt_hashes = "|".join(segment_hashes)
     audit = AuditBundle(
@@ -165,7 +175,7 @@ async def run_pipeline(
         yt_factify_version=__version__,
     )
 
-    # 10. Build and return ExtractionResult
+    # 11. Build and return ExtractionResult
     video_info = VideoInfo(
         video_id=video_id,
         title=video_metadata.title if video_metadata else None,

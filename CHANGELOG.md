@@ -2,6 +2,19 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.5.5] — 2026-02-07
+
+### Adaptive Rate Throttle
+- New `AdaptiveThrottle` class in `src/yt_factify/throttle.py` — global coordination of all concurrent LLM requests
+- Token-bucket dispatch: controls concurrency and minimum interval between API calls
+- **Deceleration:** When 3+ rate-limit failures occur in a 60s sliding window, halves concurrency and doubles dispatch interval
+- **Reacceleration:** After 60s cooling period with zero failures, steps concurrency back up by 1 (never exceeds safe ceiling)
+- Progress reporting: logs % complete, ETA, current concurrency, and dispatch interval at 10% intervals
+- Integrated into all LLM call sites: `llm_completion`, `extract_items`, `classify_video`, `assess_credibility`, `cluster_topic_threads`
+- Pipeline instantiates a shared throttle and passes it through all stages
+- Backward compatible: all throttle parameters are optional (defaults to simple semaphore when absent)
+- 20 new tests (304 total)
+
 ## [0.5.4] — 2026-02-07
 
 ### Transcript Fetch Diagnostics

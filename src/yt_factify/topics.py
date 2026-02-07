@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import json
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -20,6 +21,9 @@ from yt_factify.models import (
     TopicTimeSpan,
 )
 from yt_factify.prompts.topics import build_topic_threading_messages
+
+if TYPE_CHECKING:
+    from yt_factify.throttle import AdaptiveThrottle
 
 logger = structlog.get_logger()
 
@@ -158,6 +162,7 @@ def _parse_topic_threads(
 async def cluster_topic_threads(
     items: list[ExtractedItem],
     config: AppConfig,
+    throttle: AdaptiveThrottle | None = None,
 ) -> list[TopicThread]:
     """Cluster extracted items into topic threads via LLM.
 
@@ -199,6 +204,7 @@ async def cluster_topic_threads(
                 config=config,
                 max_attempts=1,
                 context="topic_clustering",
+                throttle=throttle,
             )
 
             threads = _parse_topic_threads(content, items)

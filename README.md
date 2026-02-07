@@ -14,6 +14,7 @@ Extract auditable facts, quotes, topics, and biases from YouTube transcripts.
 - **LLM as proposal engine** — the LLM proposes items; validation confirms them
 - **Bias-aware** — videos are classified by category and bias profile
 - **Belief system modules** — flag claims that depend on specific worldviews
+- **Rate-limit resilient** — adaptive throttle automatically decelerates on API rate limits and reaccelerates after a cooling period
 - **Auditable** — every extraction includes a full audit bundle
 
 ## Installation
@@ -291,6 +292,8 @@ src/yt_factify/
 ├── classification.py    # Video categorization and credibility assessment
 ├── belief_systems.py    # Belief/value system module loading
 ├── topics.py            # Topic thread clustering
+├── llm.py               # Shared LLM call helper with rate-limit retry
+├── throttle.py          # Adaptive rate throttle for LLM API calls
 ├── rendering.py         # JSON and Markdown output rendering
 ├── logging.py           # Structured logging setup
 ├── prompts/             # LLM prompt templates

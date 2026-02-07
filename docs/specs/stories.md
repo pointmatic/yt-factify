@@ -424,7 +424,57 @@ Improve transcript fetch error messages with upload-date heuristics and split er
 - [x] Update `CHANGELOG.md`
 - [ ] `--min-upload-age` CLI flag — deferred to future story
 
-### Story F.e: v0.5.5 Channel Fetch Ledger [Planned]
+### Story F.e: v0.5.5 Adaptive Rate Throttle [Done]
+
+Global adaptive throttle that coordinates all concurrent LLM requests, decelerates on high failure rates, and reaccelerates after a cooling period.
+
+**Problem:** The current per-request exponential backoff (Story F.c) retries individual calls independently. When multiple concurrent segments hit rate limits simultaneously, they all back off and then slam the API again at roughly the same time (thundering herd). There is no global coordination of request rate.
+
+**Design:**
+
+- `AdaptiveThrottle` class in `src/yt_factify/throttle.py` — shared across all LLM calls in a pipeline run
+- Token-bucket dispatch: controls how many requests can be in-flight and the minimum interval between dispatches
+- Two-layer rate control:
+  1. **Deceleration:** When failure count in a sliding window exceeds a threshold (default: 3 failures in 60s), halve concurrency and double dispatch interval. Reset failure counter after deceleration.
+  2. **Reacceleration:** After a cooling period with zero failures (default: 60s), step concurrency back up one notch. A failure during cooling resets the timer. Never exceed the initial configured rate without a longer cooling period.
+- Progress reporting: log current request rate, % segments complete, and ETA at each segment completion
+
+**Acceptance criteria:**
+
+- [x] Create `src/yt_factify/throttle.py`:
+  - [x] `AdaptiveThrottle` class with `acquire()` / `release()` async context manager
+  - [x] Sliding-window failure tracking (`record_failure()`, `record_success()`)
+  - [x] Deceleration logic: halve concurrency, double dispatch interval on threshold breach
+  - [x] Cooling timer: reaccelerate after sustained success period
+  - [x] Never exceed a discovered safe ceiling without extended cooling
+  - [x] `progress()` method returning `ThrottleSnapshot(completed, total, concurrency, dispatch_interval, eta_seconds)`
+- [x] Update `llm.py`:
+  - [x] Accept optional `AdaptiveThrottle` parameter
+  - [x] On rate-limit error, call `throttle.record_failure()` before sleeping
+  - [x] On success, call `throttle.record_success()`
+- [x] Update `extraction.py`:
+  - [x] Replace `asyncio.Semaphore` with throttle-based dispatch in `extract_items`
+  - [x] Log progress (% complete, ETA) after each segment completes
+- [x] Update `pipeline.py`:
+  - [x] Instantiate `AdaptiveThrottle` and pass to `extract_items`, `classify_video`, `assess_credibility`, `cluster_topic_threads`
+- [x] Update `classification.py` and `topics.py`:
+  - [x] Pass throttle through to `llm_completion`
+- [x] Tests (20 new, 304 total):
+  - [x] Throttle init defaults and custom values
+  - [x] Deceleration on repeated failures (threshold, clears window, min concurrency, interval cap, safe ceiling)
+  - [x] Reacceleration after cooling period
+  - [x] Failure during cooling resets timer
+  - [x] Never exceed safe ceiling
+  - [x] Acquire limits concurrency
+  - [x] Dispatch interval enforced
+  - [x] Progress tracking (snapshot, after completions, all done, total setter, ETA none)
+  - [x] Integration: llm_completion with throttle records success
+  - [x] Integration: llm_completion records failure on rate limit
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (304 tests)
+- [x] Bump version to `0.5.5`
+- [x] Update `CHANGELOG.md`
+
+### Story F.f: v0.5.6 Channel Fetch Ledger [Planned]
 
 Per-channel ledger tracking the most recent transcript fetch success and failure, scoped to channel ID to avoid unbounded growth.
 

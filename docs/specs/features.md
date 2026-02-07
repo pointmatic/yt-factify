@@ -281,6 +281,17 @@ Every run produces an audit trail as part of the output, including:
 
 This allows any output to be audited: *"Was this produced from this transcript, using this model, with these prompts?"*
 
+### FR-12: Graceful Request Management
+
+The tool must manage its interactions with external services (YouTube transcript APIs and LLM APIs) responsibly and resiliently:
+
+- **Rate-limit awareness** — When an external service signals that requests are arriving too quickly, the tool must slow down automatically rather than failing or flooding the service with retries.
+- **Adaptive pacing** — Under sustained rate pressure, the tool should progressively reduce its request rate. When pressure subsides, it should cautiously return to a higher throughput.
+- **No thundering herd** — When multiple concurrent requests are rate-limited simultaneously, the tool must coordinate its retry behavior globally rather than having each request independently retry at the same time.
+- **Progress visibility** — During long-running extractions, the tool should report progress (percentage complete and estimated time remaining) so the user knows the pipeline is advancing, especially when the request rate has been reduced.
+- **Informative diagnostics** — When transcript fetching fails, the tool should provide actionable guidance based on available context (e.g., whether the video was uploaded recently and captions may not yet be available).
+- **Configurable concurrency** — The user should be able to control the maximum number of concurrent requests to match their API plan's limits.
+
 ---
 
 ## Configuration

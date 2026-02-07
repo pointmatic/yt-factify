@@ -10,11 +10,16 @@ from __future__ import annotations
 
 import asyncio
 import re
+import time
+from typing import TYPE_CHECKING
 
 import litellm
 import structlog
 
 from yt_factify.config import AppConfig
+
+if TYPE_CHECKING:
+    from yt_factify.throttle import AdaptiveThrottle
 
 logger = structlog.get_logger()
 
@@ -54,6 +59,7 @@ async def llm_completion(
     config: AppConfig,
     max_attempts: int = 2,
     context: str = "llm_call",
+    throttle: AdaptiveThrottle | None = None,
 ) -> str:
     """Call litellm.acompletion with rate-limit-aware retry.
 
@@ -62,11 +68,16 @@ async def llm_completion(
     or other transient errors, retries up to *max_attempts* without
     extra delay.
 
+    If an ``AdaptiveThrottle`` is provided, acquires a slot before
+    dispatching and reports successes/failures to coordinate the
+    global request rate.
+
     Args:
         messages: Chat messages for the LLM.
         config: Application configuration.
         max_attempts: Max attempts for non-rate-limit errors.
         context: Label for log messages (e.g. ``"extraction"``).
+        throttle: Optional shared throttle for global rate coordination.
 
     Returns:
         The text content of the first choice.
@@ -80,14 +91,30 @@ async def llm_completion(
 
     while True:
         attempt += 1
+        call_start = time.monotonic()
         try:
-            response = await litellm.acompletion(
-                model=config.model,
-                messages=messages,
-                temperature=config.temperature,
-                api_base=config.api_base,
-                api_key=config.api_key,
-            )
+            if throttle is not None:
+                async with throttle.acquire():
+                    response = await litellm.acompletion(
+                        model=config.model,
+                        messages=messages,
+                        temperature=config.temperature,
+                        api_base=config.api_base,
+                        api_key=config.api_key,
+                    )
+            else:
+                response = await litellm.acompletion(
+                    model=config.model,
+                    messages=messages,
+                    temperature=config.temperature,
+                    api_base=config.api_base,
+                    api_key=config.api_key,
+                )
+
+            duration = time.monotonic() - call_start
+            if throttle is not None:
+                throttle.record_success(duration=duration)
+
             return response.choices[0].message.content or ""
 
         except Exception as exc:
@@ -95,6 +122,10 @@ async def llm_completion(
 
             if _is_rate_limit_error(exc):
                 rate_limit_retries += 1
+
+                if throttle is not None:
+                    throttle.record_failure()
+
                 if rate_limit_retries > _RATE_LIMIT_MAX_RETRIES:
                     logger.error(
                         f"{context}_rate_limit_exhausted",

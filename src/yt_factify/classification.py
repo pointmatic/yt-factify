@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import json
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -28,6 +29,9 @@ from yt_factify.prompts.classification import (
     build_classification_messages,
 )
 from yt_factify.prompts.credibility import build_credibility_messages
+
+if TYPE_CHECKING:
+    from yt_factify.throttle import AdaptiveThrottle
 
 logger = structlog.get_logger()
 
@@ -150,6 +154,7 @@ def _parse_credibility_assessments(
 async def classify_video(
     transcript: NormalizedTranscript,
     config: AppConfig,
+    throttle: AdaptiveThrottle | None = None,
 ) -> VideoClassification:
     """Classify video category and detect bias/slant via LLM.
 
@@ -178,6 +183,7 @@ async def classify_video(
                 config=config,
                 max_attempts=1,
                 context="classification",
+                throttle=throttle,
             )
 
             result = _parse_classification(content)
@@ -218,6 +224,7 @@ async def assess_credibility(
     items: list[ExtractedItem],
     belief_modules: list[BeliefSystemModule],
     config: AppConfig,
+    throttle: AdaptiveThrottle | None = None,
 ) -> list[ExtractedItem]:
     """Add credibility assessments to extracted items via LLM.
 
@@ -251,6 +258,7 @@ async def assess_credibility(
                 config=config,
                 max_attempts=1,
                 context="credibility",
+                throttle=throttle,
             )
 
             assessments = _parse_credibility_assessments(content, items)
