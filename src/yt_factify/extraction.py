@@ -12,10 +12,10 @@ import asyncio
 import json
 import uuid
 
-import litellm
 import structlog
 
 from yt_factify.config import AppConfig
+from yt_factify.llm import llm_completion
 from yt_factify.models import (
     BeliefSystemModule,
     ExtractedItem,
@@ -134,15 +134,12 @@ async def _extract_segment(
 
     for attempt in range(max_attempts):
         try:
-            response = await litellm.acompletion(
-                model=config.model,
+            content = await llm_completion(
                 messages=messages,
-                temperature=config.temperature,
-                api_base=config.api_base,
-                api_key=config.api_key,
+                config=config,
+                max_attempts=1,  # outer loop handles parse retries
+                context=f"extraction_seg{segment.start_ms}",
             )
-
-            content = response.choices[0].message.content or ""
 
             items = _parse_items_from_response(content, video_id, segment)
 

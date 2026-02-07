@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import json
 
-import litellm
 import structlog
 
 from yt_factify.config import AppConfig
+from yt_factify.llm import llm_completion
 from yt_factify.models import (
     ExtractedItem,
     TopicThread,
@@ -194,15 +194,13 @@ async def cluster_topic_threads(
 
     for attempt in range(max_attempts):
         try:
-            response = await litellm.acompletion(
-                model=config.model,
+            content = await llm_completion(
                 messages=messages,
-                temperature=config.temperature,
-                api_base=config.api_base,
-                api_key=config.api_key,
+                config=config,
+                max_attempts=1,
+                context="topic_clustering",
             )
 
-            content = response.choices[0].message.content or ""
             threads = _parse_topic_threads(content, items)
 
             logger.info(

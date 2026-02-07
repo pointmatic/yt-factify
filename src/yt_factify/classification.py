@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import json
 
-import litellm
 import structlog
 
 from yt_factify.config import AppConfig
+from yt_factify.llm import llm_completion
 from yt_factify.models import (
     BeliefSystemModule,
     BiasProfile,
@@ -173,15 +173,13 @@ async def classify_video(
 
     for attempt in range(max_attempts):
         try:
-            response = await litellm.acompletion(
-                model=config.model,
+            content = await llm_completion(
                 messages=messages,
-                temperature=config.temperature,
-                api_base=config.api_base,
-                api_key=config.api_key,
+                config=config,
+                max_attempts=1,
+                context="classification",
             )
 
-            content = response.choices[0].message.content or ""
             result = _parse_classification(content)
 
             logger.info(
@@ -248,15 +246,13 @@ async def assess_credibility(
 
     for attempt in range(max_attempts):
         try:
-            response = await litellm.acompletion(
-                model=config.model,
+            content = await llm_completion(
                 messages=messages,
-                temperature=config.temperature,
-                api_base=config.api_base,
-                api_key=config.api_key,
+                config=config,
+                max_attempts=1,
+                context="credibility",
             )
 
-            content = response.choices[0].message.content or ""
             assessments = _parse_credibility_assessments(content, items)
 
             # Apply assessments to items

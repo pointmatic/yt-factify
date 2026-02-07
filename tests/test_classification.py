@@ -244,7 +244,7 @@ class TestClassifyVideo:
         fixture = (FIXTURES_DIR / "classification_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -260,7 +260,7 @@ class TestClassifyVideo:
         fixture = (FIXTURES_DIR / "classification_valid.json").read_text()
         good_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(side_effect=[bad_response, good_response])
 
             config = _make_config()
@@ -273,7 +273,7 @@ class TestClassifyVideo:
     def test_persistent_failure_raises(self) -> None:
         bad_response = _mock_llm_response("not json")
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=bad_response)
 
             config = _make_config()
@@ -286,7 +286,7 @@ class TestClassifyVideo:
         fixture = (FIXTURES_DIR / "classification_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -314,7 +314,7 @@ class TestAssessCredibility:
         fixture = (FIXTURES_DIR / "credibility_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -350,7 +350,7 @@ class TestAssessCredibility:
         )
         mock_response = _mock_llm_response(raw)
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -366,7 +366,7 @@ class TestAssessCredibility:
         fixture = (FIXTURES_DIR / "credibility_valid.json").read_text()
         good_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(side_effect=[bad_response, good_response])
 
             config = _make_config()
@@ -382,7 +382,7 @@ class TestAssessCredibility:
     def test_persistent_failure_raises(self) -> None:
         bad_response = _mock_llm_response("not json")
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=bad_response)
 
             config = _make_config()
@@ -401,7 +401,7 @@ class TestAssessCredibility:
             core_assumptions=["Assumption 1"],
         )
 
-        with patch("yt_factify.classification.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()

@@ -256,7 +256,7 @@ class TestClusterTopicThreads:
         fixture = (FIXTURES_DIR / "topics_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.topics.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -287,7 +287,7 @@ class TestClusterTopicThreads:
         fixture = (FIXTURES_DIR / "topics_valid.json").read_text()
         good_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.topics.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(side_effect=[bad_response, good_response])
 
             config = _make_config()
@@ -303,7 +303,7 @@ class TestClusterTopicThreads:
     def test_persistent_failure_raises(self) -> None:
         bad_response = _mock_llm_response("not json")
 
-        with patch("yt_factify.topics.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=bad_response)
 
             config = _make_config()
@@ -319,7 +319,7 @@ class TestClusterTopicThreads:
         fixture = (FIXTURES_DIR / "topics_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.topics.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()

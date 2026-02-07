@@ -2,6 +2,15 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.5.3] — 2026-02-06
+
+### Rate-Limit Resilience
+- Added shared `llm_completion()` helper in `src/yt_factify/llm.py`
+- Exponential backoff on rate-limit errors (5s → 120s cap, up to 6 retries)
+- Retry-after hint parsing from provider error messages
+- Integrated into all LLM call sites: extraction, classification, credibility, topic clustering
+- Removed direct `litellm` imports from downstream modules
+
 ## [0.5.2] — 2026-02-06
 
 ### Release Polish

@@ -375,6 +375,27 @@ Final checks and prototype release.
   - [x] Config precedence correct (CLI > env > file > defaults)
 - [x] Tag release (manual step)
 
+### Story F.c: v0.5.3 Rate-Limit Resilience [Done]
+
+Centralized LLM call helper with robust rate-limit handling.
+
+- [x] Create shared `src/yt_factify/llm.py` module
+  - [x] `llm_completion()` async helper wrapping `litellm.acompletion`
+  - [x] Exponential backoff on rate-limit errors (5s → 10s → 20s → … → 120s cap)
+  - [x] Up to 6 rate-limit retries (independent of parse/transient retries)
+  - [x] Retry-after hint parsing from provider error messages
+  - [x] Structured logging at each retry and exhaustion point
+- [x] Integrate `llm_completion()` into all LLM call sites:
+  - [x] `_extract_segment` in `extraction.py`
+  - [x] `classify_video` in `classification.py`
+  - [x] `assess_credibility` in `classification.py`
+  - [x] `cluster_topic_threads` in `topics.py`
+- [x] Remove direct `import litellm` from `extraction.py`, `classification.py`, `topics.py`
+- [x] Update all test mocks to target `yt_factify.llm.litellm`
+- [x] Bump version to `0.5.3`
+- [x] Update `CHANGELOG.md`
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (276 tests)
+
 ---
 
 ## Phase G: CI/CD

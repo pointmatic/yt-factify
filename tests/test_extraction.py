@@ -145,7 +145,7 @@ class TestExtractSegment:
         fixture = (FIXTURES_DIR / "extraction_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -165,7 +165,7 @@ class TestExtractSegment:
         good_fixture = (FIXTURES_DIR / "extraction_valid.json").read_text()
         good_response = _mock_llm_response(good_fixture)
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(side_effect=[bad_response, good_response])
 
             config = _make_config()
@@ -177,7 +177,7 @@ class TestExtractSegment:
     def test_persistent_failure_raises(self) -> None:
         bad_response = _mock_llm_response("not json")
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=bad_response)
 
             config = _make_config()
@@ -189,7 +189,7 @@ class TestExtractSegment:
         good_fixture = (FIXTURES_DIR / "extraction_valid.json").read_text()
         good_response = _mock_llm_response(good_fixture)
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(
                 side_effect=[RuntimeError("API timeout"), good_response]
             )
@@ -210,7 +210,7 @@ class TestExtractSegment:
             core_assumptions=["Assumption 1"],
         )
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -242,7 +242,7 @@ class TestExtractItems:
         fixture = (FIXTURES_DIR / "extraction_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -259,7 +259,7 @@ class TestExtractItems:
         fixture = (FIXTURES_DIR / "extraction_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = AsyncMock(return_value=mock_response)
 
             config = _make_config()
@@ -276,7 +276,7 @@ class TestExtractItems:
         good_response = _mock_llm_response(fixture)
         bad_response = _mock_llm_response("not json")
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             # First segment always fails, second succeeds
             mock_litellm.acompletion = AsyncMock(
                 side_effect=[
@@ -318,7 +318,7 @@ class TestExtractItems:
             current_concurrent -= 1
             return result
 
-        with patch("yt_factify.extraction.litellm") as mock_litellm:
+        with patch("yt_factify.llm.litellm") as mock_litellm:
             mock_litellm.acompletion = tracked_acompletion
 
             config = _make_config(max_concurrent_requests=2)
