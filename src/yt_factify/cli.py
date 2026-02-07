@@ -91,6 +91,18 @@ def version() -> None:
 @click.option("--api-key", default=None, help="LLM API key (prefer env var YT_FACTIFY_API_KEY).")
 @click.option("--temperature", type=float, default=None, help="LLM temperature (default: 0.0).")
 @click.option(
+    "--max-concurrency",
+    type=int,
+    default=None,
+    help="Maximum concurrent LLM requests (default: 3).",
+)
+@click.option(
+    "--initial-concurrency",
+    type=int,
+    default=None,
+    help="Starting concurrency; promotes to max organically (default: max-concurrency).",
+)
+@click.option(
     "--language",
     "languages",
     multiple=True,
@@ -119,6 +131,10 @@ def extract(video: str, **kwargs: Any) -> None:
         cli_overrides["temperature"] = kwargs["temperature"]
     if kwargs.get("model") is not None:
         cli_overrides["model"] = kwargs["model"]
+    if kwargs.get("max_concurrency") is not None:
+        cli_overrides["max_concurrent_requests"] = kwargs["max_concurrency"]
+    if kwargs.get("initial_concurrency") is not None:
+        cli_overrides["initial_concurrent_requests"] = kwargs["initial_concurrency"]
     if kwargs.get("languages"):
         cli_overrides["languages"] = list(kwargs["languages"])
 

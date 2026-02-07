@@ -497,6 +497,39 @@ Bypass `yt-fetch` disk cache and add retry logic to handle transient YouTube blo
 - [x] Bump version to `0.5.6`
 - [x] Update `CHANGELOG.md`
 
+### Story F.g: v0.5.7 Throttle Tuning & Concurrency Controls [Done]
+
+Reduce burst-then-stall behavior by staggering concurrent dispatches, raising the base backoff to match per-minute token budgets, and exposing CLI controls for initial and maximum concurrency.
+
+**Problem:** With a 10,000 output tokens/minute Anthropic plan, the default concurrency of 3 exhausts the token budget in ~35 s, then every in-flight request hits a rate limit simultaneously. The 5 s base backoff wastes retries before the per-minute window rolls over. Users have no way to start conservatively or cap concurrency from the command line.
+
+**Fixes:**
+
+- Add stochastic jitter (0–50 % of dispatch interval) to `acquire()` so concurrent slots don't fire at the same instant.
+- Raise base backoff from 5 s to 15 s (sequence: 15 s, 30 s, 60 s) — aligned with per-minute token limits.
+- Add `initial_concurrency` parameter to `AdaptiveThrottle` — start below max and organically promote via the cooling/reacceleration mechanism.
+- Add `--initial-concurrency` and `--max-concurrency` CLI flags, backed by `initial_concurrent_requests` config field (env: `YT_FACTIFY_INITIAL_CONCURRENT`).
+
+**Acceptance criteria:**
+
+- [x] Add stochastic jitter to `throttle.py` `acquire()` dispatch timing
+- [x] Add `initial_concurrency` parameter to `AdaptiveThrottle.__init__`
+  - [x] Clamp to `[1, max_concurrency]`
+  - [x] Enter cooling immediately when starting below max (enables organic promotion)
+- [x] Raise `_RATE_LIMIT_BASE_DELAY` from 5.0 to 15.0 in `llm.py`
+- [x] Add `initial_concurrent_requests` field to `AppConfig` (default: `None`)
+- [x] Map `YT_FACTIFY_INITIAL_CONCURRENT` env var
+- [x] Add `--max-concurrency` and `--initial-concurrency` CLI options
+- [x] Wire CLI → config → pipeline → throttle
+- [x] Tests (8 new, 312 total):
+  - [x] `initial_concurrency` below max, None, clamped to max, clamped to min
+  - [x] Organic promotion after cooling when starting below max
+  - [x] Jitter spreads dispatch times
+  - [x] Config default and validation for `initial_concurrent_requests`
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (312 tests)
+- [x] Bump version to `0.5.7`
+- [x] Update `CHANGELOG.md`
+
 ## Phase G: Channel Analytics
 
 ### Story G.a: v0.6.1 Channel Fetch Ledger [Planned]

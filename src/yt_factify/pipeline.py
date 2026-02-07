@@ -108,6 +108,7 @@ async def run_pipeline(
     # 4. Initialize adaptive throttle for LLM calls
     throttle = AdaptiveThrottle(
         max_concurrency=config.max_concurrent_requests,
+        initial_concurrency=config.initial_concurrent_requests,
         total_tasks=len(segments),
     )
 

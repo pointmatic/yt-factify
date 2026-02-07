@@ -14,7 +14,7 @@ Extract auditable facts, quotes, topics, and biases from YouTube transcripts.
 - **LLM as proposal engine** — the LLM proposes items; validation confirms them
 - **Bias-aware** — videos are classified by category and bias profile
 - **Belief system modules** — flag claims that depend on specific worldviews
-- **Rate-limit resilient** — adaptive throttle automatically decelerates on API rate limits and reaccelerates after a cooling period
+- **Rate-limit resilient** — adaptive throttle with stochastic jitter decelerates on API rate limits and reaccelerates after cooling; configurable initial and max concurrency via `--initial-concurrency` and `--max-concurrency`
 - **Auditable** — every extraction includes a full audit bundle
 
 ## Installation

@@ -2,6 +2,16 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.5.7] — 2026-02-07
+
+### Throttle Tuning & Concurrency Controls
+- **Stochastic jitter** on dispatch timing — concurrent requests no longer fire at the same instant, reducing burst-then-stall patterns
+- **Raised base backoff** from 5 s to 15 s (sequence: 15 s, 30 s, 60 s) — better aligned with per-minute token budgets
+- **`--initial-concurrency` CLI flag** — start conservative and let the throttle organically promote to max after sustained success
+- **`--max-concurrency` CLI flag** — cap the ceiling for users who prefer steady trickle over burst-stall
+- New `initial_concurrent_requests` config field (env: `YT_FACTIFY_INITIAL_CONCURRENT`)
+- 8 new tests (312 total)
+
 ## [0.5.6] — 2026-02-07
 
 ### Transcript Fetch Resilience

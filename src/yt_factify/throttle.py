@@ -14,6 +14,7 @@ period with sustained success.
 from __future__ import annotations
 
 import asyncio
+import random
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -86,6 +87,7 @@ class AdaptiveThrottle:
     def __init__(
         self,
         max_concurrency: int = 3,
+        initial_concurrency: int | None = None,
         total_tasks: int = 0,
         min_dispatch_interval: float = _DEFAULT_MIN_DISPATCH_INTERVAL,
         failure_threshold: int = _DEFAULT_FAILURE_THRESHOLD,
@@ -94,7 +96,12 @@ class AdaptiveThrottle:
     ) -> None:
         # Concurrency control
         self._max_concurrency = max(max_concurrency, _MIN_CONCURRENCY)
-        self._current_concurrency = self._max_concurrency
+        start = (
+            max(min(initial_concurrency, self._max_concurrency), _MIN_CONCURRENCY)
+            if initial_concurrency is not None
+            else self._max_concurrency
+        )
+        self._current_concurrency = start
         self._semaphore = asyncio.Semaphore(self._current_concurrency)
 
         # Dispatch interval control
@@ -113,6 +120,10 @@ class AdaptiveThrottle:
         self._last_failure_time: float = 0.0
         self._cooling_start: float | None = None
         self._safe_ceiling = self._max_concurrency
+
+        # If starting below max, enter cooling so we can organically promote
+        if self._current_concurrency < self._max_concurrency:
+            self._cooling_start = time.monotonic()
 
         # Progress tracking
         self._total_tasks = total_tasks
@@ -138,12 +149,15 @@ class AdaptiveThrottle:
         """
         await self._semaphore.acquire()
         try:
-            # Enforce minimum dispatch interval
+            # Enforce minimum dispatch interval with stochastic jitter
+            # so concurrent slots don't fire at the same instant.
             async with self._dispatch_lock:
                 now = time.monotonic()
                 elapsed = now - self._last_dispatch_time
-                if elapsed < self._current_dispatch_interval:
-                    await asyncio.sleep(self._current_dispatch_interval - elapsed)
+                base_wait = self._current_dispatch_interval - elapsed
+                if base_wait > 0:
+                    jitter = random.uniform(0, self._current_dispatch_interval * 0.5)  # noqa: S311
+                    await asyncio.sleep(base_wait + jitter)
                 self._last_dispatch_time = time.monotonic()
 
             yield

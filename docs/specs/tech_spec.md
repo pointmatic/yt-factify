@@ -291,7 +291,7 @@ async def llm_completion(
 ) -> str:
     """Call litellm.acompletion with rate-limit-aware retry.
 
-    On rate-limit errors, backs off exponentially (5s → 120s cap,
+    On rate-limit errors, backs off exponentially (15s → 120s cap,
     up to 6 retries). If an AdaptiveThrottle is provided, acquires
     a slot before dispatching and reports successes/failures to
     coordinate the global request rate.
@@ -313,6 +313,7 @@ class AdaptiveThrottle:
     def __init__(
         self,
         max_concurrency: int = 3,
+        initial_concurrency: int | None = None,
         total_tasks: int = 0,
         min_dispatch_interval: float = 0.2,
         failure_threshold: int = 3,
@@ -321,7 +322,7 @@ class AdaptiveThrottle:
     ) -> None: ...
 
     async def acquire(self) -> AsyncContextManager:
-        """Acquire a dispatch slot (concurrency + interval gating)."""
+        """Acquire a dispatch slot (concurrency + interval + jitter)."""
 
     def record_success(self, duration: float = 0.0) -> None:
         """Record a successful call; may trigger reacceleration."""
@@ -337,6 +338,10 @@ class AdaptiveThrottle:
 
 1. **Deceleration** — When the number of rate-limit failures in a sliding window (default: 60 s) exceeds a threshold (default: 3), the throttle halves concurrency and doubles the dispatch interval. The failure counter is cleared after each deceleration to avoid cascading.
 2. **Reacceleration** — After a cooling period (default: 60 s) with zero failures, the throttle steps concurrency back up by one and halves the dispatch interval. It never exceeds a "safe ceiling" — the concurrency level at which failures were last observed.
+
+**Stochastic jitter** — Each `acquire()` call adds random jitter (0–50 % of the current dispatch interval) to prevent concurrent slots from firing at the same instant. This avoids the burst-then-stall pattern where all requests hit the API simultaneously, exhaust the token budget, and then all back off together.
+
+**Initial concurrency** — The `initial_concurrency` parameter (default: same as `max_concurrency`) allows the throttle to start conservatively. When starting below max, the throttle enters cooling immediately so it can organically promote via the reacceleration mechanism. This is exposed to users via `--initial-concurrency` on the CLI.
 
 **Progress reporting** — The throttle logs % complete, ETA, current concurrency, and dispatch interval at every 10 % milestone and on completion.
 
@@ -732,7 +737,7 @@ All LLM calls go through `litellm.acompletion()`, which provides:
 | Failure | Retry? | Strategy |
 |---------|--------|----------|
 | Transcript fetch (network) | Yes | Handled by yt-fetch (configurable retries) |
-| LLM API rate limit (429) | Yes | Per-request exponential backoff (5 s → 120 s cap, up to 6 retries) via `llm_completion`, plus global deceleration via `AdaptiveThrottle` |
+| LLM API rate limit (429) | Yes | Per-request exponential backoff (15 s → 120 s cap, up to 6 retries) via `llm_completion`, plus global deceleration via `AdaptiveThrottle` |
 | LLM API error (500, 503) | Yes | litellm built-in retry |
 | LLM malformed JSON | Yes | 1 retry with same prompt |
 | LLM schema validation failure | Yes | 1 retry with error feedback in prompt |
@@ -742,10 +747,12 @@ All LLM calls go through `litellm.acompletion()`, which provides:
 
 Rate-limit resilience operates at two layers:
 
-1. **Per-request backoff** (`llm.py`) — Each individual LLM call retries on rate-limit errors with exponential backoff (5 s, 10 s, 20 s, … capped at 120 s). A `retry-after` hint from the provider is used when available.
+1. **Per-request backoff** (`llm.py`) — Each individual LLM call retries on rate-limit errors with exponential backoff (15 s, 30 s, 60 s, … capped at 120 s). The base delay of 15 s is tuned for per-minute token budgets — a shorter delay would waste retries before the rate window rolls over. A `retry-after` hint from the provider is used when available.
 2. **Global adaptive throttle** (`throttle.py`) — A shared `AdaptiveThrottle` instance coordinates all concurrent LLM requests across the pipeline. It controls both concurrency (how many requests are in-flight) and dispatch interval (minimum time between consecutive dispatches).
    - **Deceleration:** When 3+ rate-limit failures occur within a 60 s sliding window, the throttle halves concurrency and doubles the dispatch interval. This prevents the thundering-herd problem where multiple concurrent requests all back off and then slam the API simultaneously.
    - **Reacceleration:** After 60 s of sustained success (zero failures), the throttle steps concurrency back up by one. It never exceeds the "safe ceiling" — the concurrency level at which failures were last observed.
+   - **Stochastic jitter:** Each dispatch adds random jitter (0–50 % of interval) to prevent concurrent requests from firing simultaneously.
+   - **Initial concurrency:** Configurable starting concurrency (`--initial-concurrency`) that organically promotes to max via the cooling mechanism.
    - **Progress reporting:** Logs % complete, ETA, current concurrency, and dispatch interval at 10 % milestones.
 
 This two-layer approach ensures that transient rate limits are handled quickly at the request level, while sustained rate pressure triggers a global slowdown that protects the entire pipeline.

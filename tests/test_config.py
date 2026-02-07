@@ -30,6 +30,7 @@ class TestAppConfigDefaults:
         assert config.quote_mismatch == QuoteMismatchBehavior.REJECT
         assert config.segment_seconds == 45
         assert config.max_concurrent_requests == 3
+        assert config.initial_concurrent_requests is None
         assert config.max_retries == 3
 
     def test_segment_seconds_must_be_positive(self) -> None:
@@ -39,6 +40,14 @@ class TestAppConfigDefaults:
     def test_max_retries_can_be_zero(self) -> None:
         config = AppConfig(max_retries=0)
         assert config.max_retries == 0
+
+    def test_initial_concurrent_requests_set(self) -> None:
+        config = AppConfig(initial_concurrent_requests=2)
+        assert config.initial_concurrent_requests == 2
+
+    def test_initial_concurrent_requests_must_be_positive(self) -> None:
+        with pytest.raises(ValueError):
+            AppConfig(initial_concurrent_requests=0)
 
 
 class TestLoadConfigFromFile:

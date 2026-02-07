@@ -24,7 +24,9 @@ if TYPE_CHECKING:
 logger = structlog.get_logger()
 
 # Base delay in seconds for exponential backoff on rate limits.
-_RATE_LIMIT_BASE_DELAY = 5.0
+# Set to 15s because most provider limits are per-minute token budgets;
+# a 5s retry just wastes an attempt before the window rolls over.
+_RATE_LIMIT_BASE_DELAY = 15.0
 
 # Maximum delay cap in seconds.
 _RATE_LIMIT_MAX_DELAY = 120.0

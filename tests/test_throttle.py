@@ -33,6 +33,41 @@ class TestAdaptiveThrottleInit:
         t = AdaptiveThrottle(max_concurrency=0)
         assert t._current_concurrency == 1
 
+    def test_initial_concurrency_below_max(self) -> None:
+        t = AdaptiveThrottle(max_concurrency=5, initial_concurrency=2)
+        assert t._max_concurrency == 5
+        assert t._current_concurrency == 2
+        assert t._safe_ceiling == 5
+        # Should enter cooling so it can organically promote
+        assert t._cooling_start is not None
+
+    def test_initial_concurrency_none_uses_max(self) -> None:
+        t = AdaptiveThrottle(max_concurrency=4, initial_concurrency=None)
+        assert t._current_concurrency == 4
+        assert t._cooling_start is None
+
+    def test_initial_concurrency_clamped_to_max(self) -> None:
+        t = AdaptiveThrottle(max_concurrency=3, initial_concurrency=10)
+        assert t._current_concurrency == 3
+
+    def test_initial_concurrency_clamped_to_min(self) -> None:
+        t = AdaptiveThrottle(max_concurrency=5, initial_concurrency=0)
+        assert t._current_concurrency == 1
+
+    def test_initial_concurrency_promotes_after_cooling(self) -> None:
+        """Starting at initial < max should promote after cooling period."""
+        t = AdaptiveThrottle(
+            max_concurrency=3,
+            initial_concurrency=1,
+            cooling_period=0.01,
+        )
+        assert t._current_concurrency == 1
+
+        # Simulate a short wait then success
+        time.sleep(0.02)
+        t.record_success(duration=0.1)
+        assert t._current_concurrency == 2  # promoted by 1
+
 
 class TestDeceleration:
     def test_decelerate_on_threshold(self) -> None:
@@ -218,6 +253,30 @@ class TestAcquireRelease:
             for i in range(1, len(timestamps)):
                 gap = timestamps[i] - timestamps[i - 1]
                 assert gap >= 0.04  # allow small tolerance
+
+        asyncio.run(_run())
+
+    def test_dispatch_jitter_spreads_requests(self) -> None:
+        """Verify jitter prevents all requests from firing at the same instant."""
+
+        async def _run() -> None:
+            t = AdaptiveThrottle(
+                max_concurrency=3,
+                min_dispatch_interval=0.1,
+            )
+            timestamps: list[float] = []
+
+            async def task() -> None:
+                async with t.acquire():
+                    timestamps.append(time.monotonic())
+
+            await asyncio.gather(*[task() for _ in range(3)])
+
+            # With jitter, gaps should be >= base interval (0.1s)
+            # but not all identical — at least one gap should exceed
+            # the base interval due to jitter.
+            gaps = [timestamps[i] - timestamps[i - 1] for i in range(1, len(timestamps))]
+            assert all(g >= 0.09 for g in gaps)  # tolerance
 
         asyncio.run(_run())
 
