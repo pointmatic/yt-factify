@@ -180,30 +180,30 @@ Module loading and integration with extraction/credibility.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: all belief system tests pass
 
-### Story B.g: v0.1.7 Topic Threading [Planned]
+### Story B.g: v0.1.7 Topic Threading [Done]
 
 Cluster extracted items into topic threads to capture conversational structure.
 
-- [ ] Add `TopicTimeSpan` and `TopicThread` models to `src/yt_factify/models.py`
-- [ ] Add `topic_threads` field to `ExtractionResult`
-- [ ] Create `src/yt_factify/prompts/topics.py`
-  - [ ] System prompt for topic clustering (item grouping by subject)
-  - [ ] `build_topic_threading_messages()` accepting items list
-- [ ] Create `src/yt_factify/topics.py`
-  - [ ] `cluster_topic_threads()` — async, calls LLM to cluster items by topic
-  - [ ] Parses LLM response, validates item IDs against input
-  - [ ] Derives timeline from `transcript_evidence` timestamps of member items
-  - [ ] Retries once on malformed JSON, raises `TopicClusteringError` on failure
-  - [ ] Handles edge case: very few items (< 3) returns empty list
-- [ ] Create `tests/fixtures/llm_responses/` topic threading response fixture
-- [ ] Create `tests/test_topics.py`
-  - [ ] Test topic clustering with mocked LLM
-  - [ ] Test timeline derivation from item timestamps
-  - [ ] Test unknown item IDs are skipped
-  - [ ] Test malformed JSON handling (retry, then error)
-  - [ ] Test few-items edge case
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all topic threading tests pass
+- [x] Add `TopicTimeSpan` and `TopicThread` models to `src/yt_factify/models.py`
+- [x] Add `topic_threads` field to `ExtractionResult`
+- [x] Create `src/yt_factify/prompts/topics.py`
+  - [x] System prompt for topic clustering (item grouping by subject)
+  - [x] `build_topic_threading_messages()` accepting items list
+- [x] Create `src/yt_factify/topics.py`
+  - [x] `cluster_topic_threads()` — async, calls LLM to cluster items by topic
+  - [x] Parses LLM response, validates item IDs against input
+  - [x] Derives timeline from `transcript_evidence` timestamps of member items
+  - [x] Retries once on malformed JSON, raises `TopicClusteringError` on failure
+  - [x] Handles edge case: very few items (< 3) returns empty list
+- [x] Create `tests/fixtures/llm_responses/` topic threading response fixture
+- [x] Create `tests/test_topics.py`
+  - [x] Test topic clustering with mocked LLM
+  - [x] Test timeline derivation from item timestamps
+  - [x] Test unknown item IDs are skipped
+  - [x] Test malformed JSON handling (retry, then error)
+  - [x] Test few-items edge case
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all topic threading tests pass
 
 ---
 

@@ -183,6 +183,28 @@ class BeliefSystemModule(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Topic Thread Models
+# ---------------------------------------------------------------------------
+
+
+class TopicTimeSpan(BaseModel):
+    """A time range where a topic appears in the video."""
+
+    start_ms: int
+    end_ms: int
+
+
+class TopicThread(BaseModel):
+    """A named cluster of extracted items sharing a common subject."""
+
+    label: str
+    display_name: str
+    summary: str
+    item_ids: list[str]
+    timeline: list[TopicTimeSpan] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
 # Output Models
 # ---------------------------------------------------------------------------
 
@@ -222,4 +244,5 @@ class ExtractionResult(BaseModel):
     video: VideoInfo
     classification: VideoClassification
     items: list[ExtractedItem]
+    topic_threads: list[TopicThread] = Field(default_factory=list)
     audit: AuditBundle

@@ -1,0 +1,14 @@
+[
+  {
+    "label": "python_data_classes",
+    "display_name": "Python Data Classes",
+    "summary": "Discussion of Python data classes, their introduction in Python 3.7, and how they reduce boilerplate code.",
+    "item_ids": ["item_1", "item_2"]
+  },
+  {
+    "label": "code_examples",
+    "display_name": "Code Examples",
+    "summary": "Practical demonstrations and examples shown during the tutorial.",
+    "item_ids": ["item_2", "item_3"]
+  }
+]
