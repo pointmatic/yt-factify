@@ -272,20 +272,25 @@ Wire the pipeline into the CLI `extract` command.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: `yt-factify extract <video-id> --model <model>` produces valid JSON output (with mocked deps)
 
-### Story D.b: v0.3.2 Library API [Planned]
+### Story D.b: v0.3.2 Library API [Done]
 
 Expose the public Python API.
 
-- [ ] Update `src/yt_factify/__init__.py`
-  - [ ] Re-export: `extract`, `ExtractionResult`, `AppConfig`, `render_json`, `render_markdown`
-  - [ ] `extract()` — async convenience function wrapping `run_pipeline()`
-  - [ ] Optional sync wrapper for non-async callers
-- [ ] Add library API usage examples to docstrings
-- [ ] Create integration test for library API
-  - [ ] Test `await extract(video_id)` returns `ExtractionResult`
-  - [ ] Test with custom `AppConfig`
-- [ ] Add MPL-2.0 header to all new/modified source files
-- [ ] Verify: library API works as documented in tech spec
+- [x] Update `src/yt_factify/__init__.py`
+  - [x] Re-export: `extract`, `ExtractionResult`, `AppConfig`, `render_json`, `render_markdown`, `PipelineError`
+  - [x] `extract()` — async convenience function wrapping `run_pipeline()`
+  - [x] `extract_sync()` — sync wrapper for non-async callers
+- [x] Add library API usage examples to module docstring
+- [x] Create `tests/test_library_api.py`
+  - [x] Test `await extract(video_id)` returns `ExtractionResult`
+  - [x] Test with custom `AppConfig`
+  - [x] Test with default config
+  - [x] Test `extract_sync()` returns `ExtractionResult`
+  - [x] Test error propagation
+  - [x] Test re-exports are importable
+  - [x] Test rendering from public API
+- [x] Add MPL-2.0 header to all new/modified source files
+- [x] Verify: library API works as documented in tech spec
 
 ---
 
