@@ -530,6 +530,35 @@ Reduce burst-then-stall behavior by staggering concurrent dispatches, raising th
 - [x] Bump version to `0.5.7`
 - [x] Update `CHANGELOG.md`
 
+### Story F.h: v0.5.8 Output Auto-Naming [Done]
+
+When `--output` points to a directory (trailing slash or existing directory), auto-generate the filename as `<video_id>.<ext>` instead of requiring an explicit filename. Parent directories are created automatically.
+
+**Rules:**
+
+| `--output` value | Behavior |
+|---|---|
+| *(not set)* | stdout |
+| `foo.json` | write to `foo.json` as-is |
+| `foo/` (trailing slash) | auto-name → `foo/<video_id>.json` (create dir if needed) |
+| `foo` (existing directory) | auto-name → `foo/<video_id>.json` |
+| `foo/` + `--format markdown` | auto-name → `foo/<video_id>.md` |
+
+**Acceptance criteria:**
+
+- [x] Add `_resolve_output_path()` helper in `cli.py`
+  - [x] Trailing `/` or `\` → treat as directory, auto-generate filename
+  - [x] Existing directory → auto-generate filename
+  - [x] Otherwise → use as explicit filename
+- [x] Auto-generated filename: `<video_id>.json` (or `.md` for markdown)
+- [x] Create parent directories with `mkdir(parents=True, exist_ok=True)`
+- [x] Tests (9 new, 321 total):
+  - [x] Unit: explicit filename, trailing slash (json + markdown), existing dir (json + markdown), nested path
+  - [x] Integration: CLI end-to-end with trailing slash and existing directory
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (321 tests)
+- [x] Bump version to `0.5.8`
+- [x] Update `CHANGELOG.md`
+
 ## Phase G: Channel Analytics
 
 ### Story G.a: v0.6.1 Channel Fetch Ledger [Planned]

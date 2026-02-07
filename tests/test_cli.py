@@ -21,6 +21,7 @@ from yt_factify.cli import (
     EXIT_TRANSCRIPT,
     _classify_error,
     _parse_video_id,
+    _resolve_output_path,
     cli,
 )
 from yt_factify.models import (
@@ -112,6 +113,53 @@ class TestParseVideoId:
 
     def test_non_url_passthrough(self) -> None:
         assert _parse_video_id("some_custom_id") == "some_custom_id"
+
+
+# ---------------------------------------------------------------------------
+# _resolve_output_path
+# ---------------------------------------------------------------------------
+
+
+class TestResolveOutputPath:
+    def test_explicit_filename(self) -> None:
+        result = _resolve_output_path("foo.json", "ABCDEF12345", "json")
+        assert result == Path("foo.json")
+
+    def test_explicit_filename_markdown(self) -> None:
+        result = _resolve_output_path("report.md", "ABCDEF12345", "markdown")
+        assert result == Path("report.md")
+
+    def test_trailing_slash_json(self) -> None:
+        result = _resolve_output_path("foo/", "ABCDEF12345", "json")
+        assert result == Path("foo/ABCDEF12345.json")
+
+    def test_trailing_slash_markdown(self) -> None:
+        result = _resolve_output_path("foo/", "ABCDEF12345", "markdown")
+        assert result == Path("foo/ABCDEF12345.md")
+
+    def test_existing_directory(self, tmp_path: Path) -> None:
+        result = _resolve_output_path(
+            str(tmp_path),
+            "ABCDEF12345",
+            "json",
+        )
+        assert result == tmp_path / "ABCDEF12345.json"
+
+    def test_existing_directory_markdown(self, tmp_path: Path) -> None:
+        result = _resolve_output_path(
+            str(tmp_path),
+            "ABCDEF12345",
+            "markdown",
+        )
+        assert result == tmp_path / "ABCDEF12345.md"
+
+    def test_nested_trailing_slash(self) -> None:
+        result = _resolve_output_path(
+            "a/b/c/",
+            "VID_ID_12345",
+            "json",
+        )
+        assert result == Path("a/b/c/VID_ID_12345.json")
 
 
 # ---------------------------------------------------------------------------
@@ -220,6 +268,65 @@ class TestExtractCommand:
             assert out_file.exists()
             parsed = json.loads(out_file.read_text())
             assert parsed["video"]["video_id"] == "dQw4w9WgXcQ"
+
+    def test_extract_output_dir_trailing_slash(self, tmp_path: Path) -> None:
+        mock_result = _make_extraction_result()
+        out_dir = tmp_path / "results"
+
+        with patch(
+            "yt_factify.cli.asyncio.run",
+            return_value=mock_result,
+        ):
+            runner = CliRunner()
+            result = runner.invoke(
+                cli,
+                [
+                    "extract",
+                    "dQw4w9WgXcQ",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--output",
+                    str(out_dir) + "/",
+                    "--log-level",
+                    "ERROR",
+                ],
+            )
+            assert result.exit_code == 0
+            auto_file = out_dir / "dQw4w9WgXcQ.json"
+            assert auto_file.exists()
+            parsed = json.loads(auto_file.read_text())
+            assert parsed["video"]["video_id"] == "dQw4w9WgXcQ"
+
+    def test_extract_output_existing_dir(self, tmp_path: Path) -> None:
+        mock_result = _make_extraction_result()
+        out_dir = tmp_path / "existing"
+        out_dir.mkdir()
+
+        with patch(
+            "yt_factify.cli.asyncio.run",
+            return_value=mock_result,
+        ):
+            runner = CliRunner()
+            result = runner.invoke(
+                cli,
+                [
+                    "extract",
+                    "dQw4w9WgXcQ",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--format",
+                    "markdown",
+                    "--output",
+                    str(out_dir),
+                    "--log-level",
+                    "ERROR",
+                ],
+            )
+            assert result.exit_code == 0
+            auto_file = out_dir / "dQw4w9WgXcQ.md"
+            assert auto_file.exists()
+            content = auto_file.read_text()
+            assert "dQw4w9WgXcQ" in content
 
     def test_extract_pipeline_error_transcript(self) -> None:
         with patch(

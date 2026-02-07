@@ -53,6 +53,12 @@ yt-factify extract dQw4w9WgXcQ --model gpt-4o-mini --format markdown
 # Save to a file
 yt-factify extract dQw4w9WgXcQ --model gpt-4o-mini --output results.json
 
+# Save to a directory (auto-names as <video_id>.json)
+yt-factify extract dQw4w9WgXcQ --model gpt-4o-mini --output results/
+
+# Save markdown to a directory (auto-names as <video_id>.md)
+yt-factify extract dQw4w9WgXcQ --model gpt-4o-mini --format markdown --output results/
+
 # Use a custom config file
 yt-factify extract dQw4w9WgXcQ --config my-config.toml
 ```

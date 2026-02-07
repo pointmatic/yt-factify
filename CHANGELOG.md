@@ -2,6 +2,14 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.5.8] — 2026-02-07
+
+### Output Auto-Naming
+- **`--output` directory detection** — when the output path is a trailing slash (`foo/`) or an existing directory, the filename is auto-generated as `<video_id>.json` (or `.md` for markdown format)
+- Parent directories are created automatically
+- Explicit filenames (`--output result.json`) work unchanged
+- 9 new tests (321 total)
+
 ## [0.5.7] — 2026-02-07
 
 ### Throttle Tuning & Concurrency Controls

@@ -177,10 +177,35 @@ def extract(video: str, **kwargs: Any) -> None:
 
     # Write to file or stdout
     if config.output_path:
-        write_output(output, Path(config.output_path))
-        click.echo(f"Output written to {config.output_path}")
+        out = _resolve_output_path(config.output_path, video_id, fmt)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        write_output(output, out)
+        click.echo(f"Output written to {out}")
     else:
         click.echo(output)
+
+
+def _resolve_output_path(
+    raw: str,
+    video_id: str,
+    fmt: str,
+) -> Path:
+    """Resolve the output path, auto-naming when *raw* is a directory.
+
+    Rules:
+        - Trailing ``/`` → treat as directory, auto-generate filename.
+        - Existing directory → auto-generate filename.
+        - Otherwise → use as-is (explicit filename).
+
+    Auto-generated filenames use ``<video_id>.<ext>`` where *ext* is
+    ``md`` for markdown and ``json`` for everything else.
+    """
+    p = Path(raw)
+    is_dir = raw.endswith(("/", "\\")) or p.is_dir()
+    if is_dir:
+        ext = "md" if fmt == "markdown" else "json"
+        return p / f"{video_id}.{ext}"
+    return p
 
 
 def _parse_video_id(video: str) -> str:

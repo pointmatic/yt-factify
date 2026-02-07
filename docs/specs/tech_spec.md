@@ -634,7 +634,7 @@ class AppConfig(BaseModel):
     api_key: str | None = None
     temperature: float = 0.0
     output_format: str = "json"
-    output_path: str | None = None
+    output_path: str | None = None  # file, dir/, or existing dir → auto-names
     config_path: str | None = None
     log_level: str = "INFO"
     modules_dir: str | None = None
