@@ -10,8 +10,11 @@ from __future__ import annotations
 
 import hashlib
 import re
+import time
 import unicodedata
 from datetime import date
+
+import structlog
 
 from yt_factify.config import AppConfig
 from yt_factify.models import (
@@ -22,6 +25,8 @@ from yt_factify.models import (
     TranscriptSegmentRaw,
     VideoMetadata,
 )
+
+logger = structlog.get_logger()
 
 
 class TranscriptFetchError(Exception):
@@ -111,17 +116,45 @@ def fetch_transcript(video_id: str, config: AppConfig) -> RawTranscript:
         languages=config.languages,
         allow_generated=True,
         download="none",
+        force_transcript=True,
+        force_metadata=True,
     )
 
-    result = fetch_video(video_id, opts)
+    # Retry once on transient failures (e.g. YouTube throttling after
+    # heavy use).  A hard API error with explicit error messages is
+    # not retried.
+    max_fetch_attempts = 2
+    retry_delay = 5.0
 
-    video_metadata = _build_video_metadata(result)
+    for attempt in range(1, max_fetch_attempts + 1):
+        result = fetch_video(video_id, opts)
+        video_metadata = _build_video_metadata(result)
 
-    if not result.success:
-        errors = "; ".join(result.errors) if result.errors else "unknown error"
-        raise TranscriptFetchError(f"Failed to fetch transcript for {video_id}: {errors}")
+        # Hard failure with explicit errors — don't retry
+        if not result.success and result.errors:
+            errors = "; ".join(result.errors)
+            raise TranscriptFetchError(f"Failed to fetch transcript for {video_id}: {errors}")
 
-    if result.transcript is None:
+        # Transcript present — success
+        if result.transcript is not None:
+            break
+
+        # Transient failure: success=True but no transcript, or
+        # success=False with no error details.  Retry after a delay.
+        if attempt < max_fetch_attempts:
+            logger.warning(
+                "transcript_fetch_retry",
+                video_id=video_id,
+                attempt=attempt,
+                retry_in_seconds=retry_delay,
+                reason="no transcript returned — may be a transient YouTube block",
+            )
+            time.sleep(retry_delay)
+            continue
+
+        # Final attempt still failed
+        if not result.success:
+            raise TranscriptFetchError(f"Failed to fetch transcript for {video_id}: unknown error")
         hint = _upload_date_hint(video_metadata)
         raise TranscriptFetchError(f"No transcript available for {video_id}. {hint}")
 

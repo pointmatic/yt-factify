@@ -474,7 +474,32 @@ Global adaptive throttle that coordinates all concurrent LLM requests, decelerat
 - [x] Bump version to `0.5.5`
 - [x] Update `CHANGELOG.md`
 
-### Story F.f: v0.5.6 Channel Fetch Ledger [Planned]
+### Story F.f: v0.5.6 Transcript Fetch Resilience [Done]
+
+Bypass `yt-fetch` disk cache and add retry logic to handle transient YouTube blocks that cause persistent per-video fetch failures after Ctrl-C or heavy use.
+
+**Problem:** `yt-fetch` writes cached transcript/metadata files to `./out/<video_id>/` by default. When `yt-factify` is used as a library, this disk cache is unnecessary — transcripts are processed in memory. More critically, after heavy extraction runs YouTube may transiently block transcript requests for a specific video ID. Because `yt-fetch` returned `success=True` with `transcript=None` (no explicit errors), the failure appeared permanent for that video while other videos fetched fine.
+
+**Fixes:**
+
+- Pass `force_transcript=True` and `force_metadata=True` to `FetchOptions` so `yt-fetch` always fetches fresh from YouTube, bypassing the disk cache entirely.
+- Add a single retry with 5 s delay for transient failures (`transcript=None` with no explicit errors). Hard failures with error messages are not retried.
+- Log a `transcript_fetch_retry` warning on transient retry so the user knows what's happening.
+
+**Acceptance criteria:**
+
+- [x] Set `force_transcript=True` and `force_metadata=True` in `FetchOptions` in `fetch_transcript()`
+- [x] Add retry loop (max 2 attempts, 5 s delay) for transient failures
+  - [x] Hard failures with explicit errors: fail immediately
+  - [x] Transient failures (`transcript=None`, no errors): retry once after delay
+  - [x] Log `transcript_fetch_retry` warning with video ID, attempt, and reason
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (304 tests)
+- [x] Bump version to `0.5.6`
+- [x] Update `CHANGELOG.md`
+
+## Phase G: Channel Analytics
+
+### Story G.a: v0.6.1 Channel Fetch Ledger [Planned]
 
 Per-channel ledger tracking the most recent transcript fetch success and failure, scoped to channel ID to avoid unbounded growth.
 
@@ -513,9 +538,9 @@ Per-channel ledger tracking the most recent transcript fetch success and failure
 
 ---
 
-## Phase G: CI/CD
+## Phase H: CI/CD
 
-### Story G.a: v0.6.1 GitHub Actions CI [Planned]
+### Story H.a: v0.7.1 GitHub Actions CI [Planned]
 
 Set up continuous integration with GitHub Actions.
 
@@ -534,7 +559,7 @@ Set up continuous integration with GitHub Actions.
   - [ ] Add CI status badge (passing/failing)
 - [ ] Verify: push triggers workflow, badges update automatically
 
-### Story G.b: v0.6.2 Release Automation [Planned]
+### Story G.b: v0.7.2 Release Automation [Planned]
 
 Automate version tagging and release publishing.
 

@@ -2,6 +2,14 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.5.6] — 2026-02-07
+
+### Transcript Fetch Resilience
+- Bypass `yt-fetch` disk cache: set `force_transcript=True` and `force_metadata=True` so transcripts are always fetched fresh from YouTube
+- Add retry with 5 s delay for transient YouTube blocks (`transcript=None` with no explicit errors)
+- Hard failures with explicit error messages fail immediately without retry
+- Log `transcript_fetch_retry` warning on transient retry
+
 ## [0.5.5] — 2026-02-07
 
 ### Adaptive Rate Throttle
