@@ -373,4 +373,45 @@ Final checks and prototype release.
   - [x] ≥80% test coverage — achieved **96%**
   - [x] Errors handled gracefully (exit codes, PipelineError, structured logging)
   - [x] Config precedence correct (CLI > env > file > defaults)
-- [ ] Tag release (manual step)
+- [x] Tag release (manual step)
+
+---
+
+## Phase G: CI/CD
+
+### Story G.a: v0.6.1 GitHub Actions CI [Planned]
+
+Set up continuous integration with GitHub Actions.
+
+- [ ] Create `.github/workflows/ci.yml`
+  - [ ] Trigger on push to `main` and on pull requests
+  - [ ] Matrix: Python 3.14 on ubuntu-latest
+  - [ ] Steps: checkout, install dependencies, `ruff check`, `ruff format --check`, `mypy --strict src/`, `pytest --cov`
+  - [ ] Upload coverage report to Codecov (or Coveralls)
+  - [ ] Fail the workflow if coverage drops below 80%
+- [ ] Add Codecov (or Coveralls) integration
+  - [ ] Create account and link repository
+  - [ ] Add `CODECOV_TOKEN` to repository secrets (if required)
+  - [ ] Add `codecov.yml` config with coverage threshold
+- [ ] Update `README.md` badges
+  - [ ] Replace static coverage badge with dynamic Codecov/Coveralls badge
+  - [ ] Add CI status badge (passing/failing)
+- [ ] Verify: push triggers workflow, badges update automatically
+
+### Story G.b: v0.6.2 Release Automation [Planned]
+
+Automate version tagging and release publishing.
+
+- [ ] Create `.github/workflows/release.yml`
+  - [ ] Trigger on version tag push (`v*`)
+  - [ ] Run full test suite before publishing
+  - [ ] Build sdist and wheel via `python -m build`
+  - [ ] Publish to PyPI via `twine` (or trusted publisher)
+  - [ ] Create GitHub Release with changelog entry
+- [ ] Add `PYPI_TOKEN` to repository secrets
+- [ ] Add `Makefile` with convenience targets:
+  - [ ] `make test` — run pytest with coverage
+  - [ ] `make lint` — ruff check + ruff format --check
+  - [ ] `make typecheck` — mypy --strict
+  - [ ] `make ci` — lint + typecheck + test (mirrors CI)
+- [ ] Verify: tagging `v0.6.2` triggers build, test, and publish
