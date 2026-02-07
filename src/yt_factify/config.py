@@ -71,7 +71,7 @@ def _read_toml_config(config_path: Path) -> dict[str, Any]:
     try:
         with config_path.open("rb") as f:
             return tomllib.load(f)
-    except (tomllib.TOMLDecodeError, OSError):
+    except tomllib.TOMLDecodeError, OSError:
         return {}
 
 

@@ -144,9 +144,7 @@ def validate_items(
                 else:
                     # Downgrade: change type from direct_quote to
                     # unverified_claim
-                    downgraded_item = item.model_copy(
-                        update={"type": ItemType.UNVERIFIED_CLAIM}
-                    )
+                    downgraded_item = item.model_copy(update={"type": ItemType.UNVERIFIED_CLAIM})
                     logger.info(
                         "quote_downgraded",
                         item_id=item.id,

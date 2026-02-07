@@ -229,9 +229,7 @@ class TestCredibilityAssessment:
         assert high.confidence == 1.0
 
     def test_relevant_belief_systems_default(self) -> None:
-        ca = CredibilityAssessment(
-            label=CredibilityLabel.CREDIBLE, confidence=0.5, rationale="ok"
-        )
+        ca = CredibilityAssessment(label=CredibilityLabel.CREDIBLE, confidence=0.5, rationale="ok")
         assert ca.relevant_belief_systems == []
 
 

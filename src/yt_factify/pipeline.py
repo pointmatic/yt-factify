@@ -78,24 +78,18 @@ async def run_pipeline(
             segment_count=len(transcript.segments),
         )
     except Exception as exc:
-        raise PipelineError(
-            f"Failed to fetch/normalize transcript for {video_id}: {exc}"
-        ) from exc
+        raise PipelineError(f"Failed to fetch/normalize transcript for {video_id}: {exc}") from exc
 
     # 2. Segment transcript
     try:
-        segments = segment_transcript(
-            transcript, target_seconds=config.segment_seconds
-        )
+        segments = segment_transcript(transcript, target_seconds=config.segment_seconds)
         logger.info(
             "transcript_segmented",
             video_id=video_id,
             segment_count=len(segments),
         )
     except Exception as exc:
-        raise PipelineError(
-            f"Failed to segment transcript for {video_id}: {exc}"
-        ) from exc
+        raise PipelineError(f"Failed to segment transcript for {video_id}: {exc}") from exc
 
     # 3. Load belief/value system modules
     belief_modules = get_builtin_modules()
@@ -111,9 +105,7 @@ async def run_pipeline(
     try:
         classification = await classify_video(transcript, config)
     except Exception as exc:
-        raise PipelineError(
-            f"Failed to classify video {video_id}: {exc}"
-        ) from exc
+        raise PipelineError(f"Failed to classify video {video_id}: {exc}") from exc
 
     # 5. Extract items from segments (concurrent)
     try:
@@ -130,9 +122,7 @@ async def run_pipeline(
             item_count=len(raw_items),
         )
     except Exception as exc:
-        raise PipelineError(
-            f"Failed to extract items for {video_id}: {exc}"
-        ) from exc
+        raise PipelineError(f"Failed to extract items for {video_id}: {exc}") from exc
 
     # 6. Validate items
     try:
@@ -146,29 +136,19 @@ async def run_pipeline(
             downgraded=len(validation_result.downgraded),
         )
     except Exception as exc:
-        raise PipelineError(
-            f"Failed to validate items for {video_id}: {exc}"
-        ) from exc
+        raise PipelineError(f"Failed to validate items for {video_id}: {exc}") from exc
 
     # 7. Assess credibility of validated items
     try:
-        assessed_items = await assess_credibility(
-            validated_items, belief_modules, config
-        )
+        assessed_items = await assess_credibility(validated_items, belief_modules, config)
     except Exception as exc:
-        raise PipelineError(
-            f"Failed to assess credibility for {video_id}: {exc}"
-        ) from exc
+        raise PipelineError(f"Failed to assess credibility for {video_id}: {exc}") from exc
 
     # 8. Cluster topic threads from validated items
     try:
-        topic_threads = await cluster_topic_threads(
-            assessed_items, config
-        )
+        topic_threads = await cluster_topic_threads(assessed_items, config)
     except Exception as exc:
-        raise PipelineError(
-            f"Failed to cluster topic threads for {video_id}: {exc}"
-        ) from exc
+        raise PipelineError(f"Failed to cluster topic threads for {video_id}: {exc}") from exc
 
     # 9. Build audit bundle
     segment_hashes = [seg.hash for seg in segments]

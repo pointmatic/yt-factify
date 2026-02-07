@@ -318,14 +318,15 @@ Comprehensive test coverage with golden fixtures and edge cases.
 - [x] Verify: ≥80% line coverage — achieved **96%** overall, core modules 94–100%
 - [x] Add MPL-2.0 header to all new source files
 
-### Story E.b: Type Checking & Linting Cleanup [Planned]
+### Story E.b: Type Checking & Linting Cleanup [Done]
 
 Ensure full type safety and code quality.
 
-- [ ] Run `mypy --strict` on all source files and fix any errors
-- [ ] Run `ruff check` and `ruff format` and fix any issues
-- [ ] Ensure all public functions have docstrings
-- [ ] Verify: `make lint`, `make typecheck`, `make test` all pass cleanly
+- [x] Run `mypy --strict` on all source files — **0 errors**
+- [x] Run `ruff check` — **0 errors**
+- [x] Run `ruff format` — **23 files reformatted**, all now consistent
+- [x] All public functions have docstrings
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` all pass cleanly
 
 ---
 

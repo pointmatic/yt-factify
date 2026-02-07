@@ -44,9 +44,7 @@ class TestAppConfigDefaults:
 class TestLoadConfigFromFile:
     def test_loads_toml_config(self, tmp_path: Path) -> None:
         config_file = tmp_path / "config.toml"
-        config_file.write_text(
-            'model = "gpt-4o"\ntemperature = 0.5\nlog_level = "DEBUG"\n'
-        )
+        config_file.write_text('model = "gpt-4o"\ntemperature = 0.5\nlog_level = "DEBUG"\n')
         config = load_config(config_path=config_file)
         assert config.model == "gpt-4o"
         assert config.temperature == 0.5
@@ -74,9 +72,7 @@ class TestLoadConfigEnvVars:
         assert config.log_level == "WARNING"
         assert config.segment_seconds == 60
 
-    def test_env_vars_override_file(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_env_vars_override_file(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         config_file = tmp_path / "config.toml"
         config_file.write_text('model = "gpt-4o"\n')
         monkeypatch.setenv("YT_FACTIFY_MODEL", "claude-3")
@@ -106,13 +102,9 @@ class TestLoadConfigCLIOverrides:
         assert config.model == ""
         assert config.log_level == "WARNING"
 
-    def test_full_precedence_chain(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_full_precedence_chain(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         config_file = tmp_path / "config.toml"
-        config_file.write_text(
-            'model = "file-model"\nlog_level = "DEBUG"\ntemperature = 0.1\n'
-        )
+        config_file.write_text('model = "file-model"\nlog_level = "DEBUG"\ntemperature = 0.1\n')
         monkeypatch.setenv("YT_FACTIFY_LOG_LEVEL", "WARNING")
         monkeypatch.setenv("YT_FACTIFY_TEMPERATURE", "0.5")
         config = load_config(

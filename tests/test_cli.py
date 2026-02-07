@@ -82,9 +82,7 @@ def _make_extraction_result() -> ExtractionResult:
             model_id="gpt-4o-mini",
             model_version=None,
             prompt_templates_hash="phash",
-            processing_timestamp=datetime(
-                2026, 1, 15, 12, 5, 0, tzinfo=UTC
-            ),
+            processing_timestamp=datetime(2026, 1, 15, 12, 5, 0, tzinfo=UTC),
             segment_hashes=["sh1"],
             yt_factify_version="0.3.1",
         ),
@@ -159,9 +157,12 @@ class TestExtractCommand:
             result = runner.invoke(
                 cli,
                 [
-                    "extract", "dQw4w9WgXcQ",
-                    "--model", "gpt-4o-mini",
-                    "--log-level", "ERROR",
+                    "extract",
+                    "dQw4w9WgXcQ",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--log-level",
+                    "ERROR",
                 ],
             )
             assert result.exit_code == 0
@@ -179,10 +180,14 @@ class TestExtractCommand:
             result = runner.invoke(
                 cli,
                 [
-                    "extract", "dQw4w9WgXcQ",
-                    "--model", "gpt-4o-mini",
-                    "--format", "markdown",
-                    "--log-level", "ERROR",
+                    "extract",
+                    "dQw4w9WgXcQ",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--format",
+                    "markdown",
+                    "--log-level",
+                    "ERROR",
                 ],
             )
             assert result.exit_code == 0
@@ -201,10 +206,14 @@ class TestExtractCommand:
             result = runner.invoke(
                 cli,
                 [
-                    "extract", "dQw4w9WgXcQ",
-                    "--model", "gpt-4o-mini",
-                    "--output", str(out_file),
-                    "--log-level", "ERROR",
+                    "extract",
+                    "dQw4w9WgXcQ",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--output",
+                    str(out_file),
+                    "--log-level",
+                    "ERROR",
                 ],
             )
             assert result.exit_code == 0
@@ -215,17 +224,18 @@ class TestExtractCommand:
     def test_extract_pipeline_error_transcript(self) -> None:
         with patch(
             "yt_factify.cli.asyncio.run",
-            side_effect=PipelineError(
-                "Failed to fetch/normalize transcript for vid: error"
-            ),
+            side_effect=PipelineError("Failed to fetch/normalize transcript for vid: error"),
         ):
             runner = CliRunner()
             result = runner.invoke(
                 cli,
                 [
-                    "extract", "vid",
-                    "--model", "gpt-4o-mini",
-                    "--log-level", "ERROR",
+                    "extract",
+                    "vid",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--log-level",
+                    "ERROR",
                 ],
             )
             assert result.exit_code == EXIT_TRANSCRIPT
@@ -233,17 +243,18 @@ class TestExtractCommand:
     def test_extract_pipeline_error_llm(self) -> None:
         with patch(
             "yt_factify.cli.asyncio.run",
-            side_effect=PipelineError(
-                "Failed to classify video vid: LLM error"
-            ),
+            side_effect=PipelineError("Failed to classify video vid: LLM error"),
         ):
             runner = CliRunner()
             result = runner.invoke(
                 cli,
                 [
-                    "extract", "vid",
-                    "--model", "gpt-4o-mini",
-                    "--log-level", "ERROR",
+                    "extract",
+                    "vid",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--log-level",
+                    "ERROR",
                 ],
             )
             assert result.exit_code == EXIT_LLM
@@ -257,9 +268,12 @@ class TestExtractCommand:
             result = runner.invoke(
                 cli,
                 [
-                    "extract", "vid",
-                    "--model", "gpt-4o-mini",
-                    "--log-level", "ERROR",
+                    "extract",
+                    "vid",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--log-level",
+                    "ERROR",
                 ],
             )
             assert result.exit_code == EXIT_GENERAL
@@ -286,8 +300,10 @@ class TestExtractCommand:
                 [
                     "extract",
                     "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                    "--model", "gpt-4o-mini",
-                    "--log-level", "ERROR",
+                    "--model",
+                    "gpt-4o-mini",
+                    "--log-level",
+                    "ERROR",
                 ],
             )
             assert result.exit_code == 0

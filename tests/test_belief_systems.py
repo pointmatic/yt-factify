@@ -27,9 +27,7 @@ class TestLoadBeliefModules:
             "core_assumptions": ["Assumption one."],
             "example_claims": ["Claim one."],
         }
-        (tmp_path / "test_module.json").write_text(
-            json.dumps(module_data), encoding="utf-8"
-        )
+        (tmp_path / "test_module.json").write_text(json.dumps(module_data), encoding="utf-8")
         modules = load_belief_modules(tmp_path)
         assert len(modules) == 1
         assert modules[0].label == "test_module"
@@ -43,9 +41,7 @@ class TestLoadBeliefModules:
                 "description": f"The {name} worldview.",
                 "core_assumptions": ["An assumption."],
             }
-            (tmp_path / f"{name}.json").write_text(
-                json.dumps(data), encoding="utf-8"
-            )
+            (tmp_path / f"{name}.json").write_text(json.dumps(data), encoding="utf-8")
         modules = load_belief_modules(tmp_path)
         assert len(modules) == 2
         # Sorted by filename
@@ -60,13 +56,9 @@ class TestLoadBeliefModules:
             "description": "Valid.",
             "core_assumptions": ["Yes."],
         }
-        (tmp_path / "good.json").write_text(
-            json.dumps(valid), encoding="utf-8"
-        )
+        (tmp_path / "good.json").write_text(json.dumps(valid), encoding="utf-8")
         # Invalid JSON
-        (tmp_path / "bad_json.json").write_text(
-            "not valid json {{{", encoding="utf-8"
-        )
+        (tmp_path / "bad_json.json").write_text("not valid json {{{", encoding="utf-8")
         # Valid JSON but missing required fields
         (tmp_path / "bad_schema.json").write_text(
             json.dumps({"label": "incomplete"}), encoding="utf-8"
@@ -98,9 +90,7 @@ class TestLoadBeliefModules:
             "core_assumptions": ["First assumption.", "Second assumption."],
             "example_claims": ["Example claim one.", "Example claim two."],
         }
-        (tmp_path / "full.json").write_text(
-            json.dumps(data), encoding="utf-8"
-        )
+        (tmp_path / "full.json").write_text(json.dumps(data), encoding="utf-8")
         modules = load_belief_modules(tmp_path)
         assert len(modules) == 1
         m = modules[0]
@@ -116,9 +106,7 @@ class TestLoadBeliefModules:
             "description": "Minimal module.",
             "core_assumptions": ["One assumption."],
         }
-        (tmp_path / "minimal.json").write_text(
-            json.dumps(data), encoding="utf-8"
-        )
+        (tmp_path / "minimal.json").write_text(json.dumps(data), encoding="utf-8")
         modules = load_belief_modules(tmp_path)
         assert len(modules) == 1
         assert modules[0].example_claims == []
@@ -156,5 +144,6 @@ class TestGetBuiltinModules:
             # Re-validate by round-tripping
             data = m.model_dump()
             from yt_factify.models import BeliefSystemModule
+
             reloaded = BeliefSystemModule.model_validate(data)
             assert reloaded.label == m.label

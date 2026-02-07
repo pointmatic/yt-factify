@@ -138,26 +138,30 @@ class TestParseClassification:
         assert result.bias_profile.confidence == 0.85
 
     def test_unknown_category_falls_back_to_other(self) -> None:
-        raw = json.dumps({
-            "categories": ["unknown_category"],
-            "bias_profile": {
-                "primary_label": "neutral",
-                "confidence": 0.5,
-                "rationale": "test",
-            },
-        })
+        raw = json.dumps(
+            {
+                "categories": ["unknown_category"],
+                "bias_profile": {
+                    "primary_label": "neutral",
+                    "confidence": 0.5,
+                    "rationale": "test",
+                },
+            }
+        )
         result = _parse_classification(raw)
         assert result.categories == [VideoCategory.OTHER]
 
     def test_empty_categories_defaults_to_other(self) -> None:
-        raw = json.dumps({
-            "categories": [],
-            "bias_profile": {
-                "primary_label": "neutral",
-                "confidence": 0.5,
-                "rationale": "test",
-            },
-        })
+        raw = json.dumps(
+            {
+                "categories": [],
+                "bias_profile": {
+                    "primary_label": "neutral",
+                    "confidence": 0.5,
+                    "rationale": "test",
+                },
+            }
+        )
         result = _parse_classification(raw)
         assert result.categories == [VideoCategory.OTHER]
 
@@ -192,23 +196,31 @@ class TestParseCredibilityAssessments:
         assert assessments["item_3"].label == CredibilityLabel.UNASSESSABLE
 
     def test_unknown_item_id_skipped(self) -> None:
-        raw = json.dumps([{
-            "item_id": "nonexistent",
-            "label": "credible",
-            "confidence": 0.5,
-            "rationale": "test",
-        }])
+        raw = json.dumps(
+            [
+                {
+                    "item_id": "nonexistent",
+                    "label": "credible",
+                    "confidence": 0.5,
+                    "rationale": "test",
+                }
+            ]
+        )
         items = [_make_item("item_1")]
         assessments = _parse_credibility_assessments(raw, items)
         assert len(assessments) == 0
 
     def test_invalid_label_skipped(self) -> None:
-        raw = json.dumps([{
-            "item_id": "item_1",
-            "label": "totally_invalid_label",
-            "confidence": 0.5,
-            "rationale": "test",
-        }])
+        raw = json.dumps(
+            [
+                {
+                    "item_id": "item_1",
+                    "label": "totally_invalid_label",
+                    "confidence": 0.5,
+                    "rationale": "test",
+                }
+            ]
+        )
         items = [_make_item("item_1")]
         assessments = _parse_credibility_assessments(raw, items)
         assert len(assessments) == 0
@@ -249,9 +261,7 @@ class TestClassifyVideo:
         good_response = _mock_llm_response(fixture)
 
         with patch("yt_factify.classification.litellm") as mock_litellm:
-            mock_litellm.acompletion = AsyncMock(
-                side_effect=[bad_response, good_response]
-            )
+            mock_litellm.acompletion = AsyncMock(side_effect=[bad_response, good_response])
 
             config = _make_config()
             transcript = _make_transcript()
@@ -327,13 +337,17 @@ class TestAssessCredibility:
 
     def test_partial_assessment(self) -> None:
         """Items without assessments retain credibility=None."""
-        raw = json.dumps([{
-            "item_id": "item_1",
-            "label": "credible",
-            "confidence": 0.8,
-            "rationale": "test",
-            "relevant_belief_systems": [],
-        }])
+        raw = json.dumps(
+            [
+                {
+                    "item_id": "item_1",
+                    "label": "credible",
+                    "confidence": 0.8,
+                    "rationale": "test",
+                    "relevant_belief_systems": [],
+                }
+            ]
+        )
         mock_response = _mock_llm_response(raw)
 
         with patch("yt_factify.classification.litellm") as mock_litellm:
@@ -353,9 +367,7 @@ class TestAssessCredibility:
         good_response = _mock_llm_response(fixture)
 
         with patch("yt_factify.classification.litellm") as mock_litellm:
-            mock_litellm.acompletion = AsyncMock(
-                side_effect=[bad_response, good_response]
-            )
+            mock_litellm.acompletion = AsyncMock(side_effect=[bad_response, good_response])
 
             config = _make_config()
             items = [

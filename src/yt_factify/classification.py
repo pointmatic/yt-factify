@@ -135,12 +135,10 @@ def _parse_credibility_assessments(
                 label=label,
                 confidence=float(raw_assessment.get("confidence", 0.5)),
                 rationale=raw_assessment.get("rationale", ""),
-                relevant_belief_systems=raw_assessment.get(
-                    "relevant_belief_systems", []
-                ),
+                relevant_belief_systems=raw_assessment.get("relevant_belief_systems", []),
             )
             assessments[item_id] = assessment
-        except (KeyError, ValueError):
+        except KeyError, ValueError:
             logger.warning(
                 "skipping_invalid_credibility_assessment",
                 raw=raw_assessment,
@@ -265,9 +263,7 @@ async def assess_credibility(
             result: list[ExtractedItem] = []
             for item in items:
                 if item.id in assessments:
-                    updated = item.model_copy(
-                        update={"credibility": assessments[item.id]}
-                    )
+                    updated = item.model_copy(update={"credibility": assessments[item.id]})
                     result.append(updated)
                 else:
                     logger.warning(
@@ -300,6 +296,5 @@ async def assess_credibility(
             )
 
     raise CredibilityError(
-        f"Failed to assess credibility after {max_attempts} attempts: "
-        f"{last_error}"
+        f"Failed to assess credibility after {max_attempts} attempts: {last_error}"
     )

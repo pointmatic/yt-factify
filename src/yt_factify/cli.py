@@ -49,13 +49,16 @@ def version() -> None:
     help="Output format (default: json).",
 )
 @click.option(
-    "--output", "-o", "output_path",
+    "--output",
+    "-o",
+    "output_path",
     type=click.Path(),
     default=None,
     help="Output file path (default: stdout).",
 )
 @click.option(
-    "--config", "config_path",
+    "--config",
+    "config_path",
     type=click.Path(exists=True),
     default=None,
     help="Config file path.",

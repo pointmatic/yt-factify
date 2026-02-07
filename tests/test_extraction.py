@@ -105,30 +105,30 @@ class TestParseItemsFromResponse:
 
     def test_malformed_json_raises(self) -> None:
         with pytest.raises(json.JSONDecodeError):
-            _parse_items_from_response(
-                "not json at all", "vid", _make_segment()
-            )
+            _parse_items_from_response("not json at all", "vid", _make_segment())
 
     def test_non_array_raises(self) -> None:
         with pytest.raises(ValueError, match="Expected JSON array"):
-            _parse_items_from_response(
-                '{"key": "value"}', "vid", _make_segment()
-            )
+            _parse_items_from_response('{"key": "value"}', "vid", _make_segment())
 
     def test_empty_array(self) -> None:
         items = _parse_items_from_response("[]", "vid", _make_segment())
         assert items == []
 
     def test_id_generated_when_missing(self) -> None:
-        raw = json.dumps([{
-            "type": "transcript_fact",
-            "content": "Test fact",
-            "transcript_evidence": {
-                "text": "Test fact",
-                "start_ms": 0,
-                "end_ms": 5000,
-            },
-        }])
+        raw = json.dumps(
+            [
+                {
+                    "type": "transcript_fact",
+                    "content": "Test fact",
+                    "transcript_evidence": {
+                        "text": "Test fact",
+                        "start_ms": 0,
+                        "end_ms": 5000,
+                    },
+                }
+            ]
+        )
         seg = _make_segment(start_ms=0, end_ms=5000)
         items = _parse_items_from_response(raw, "vid123", seg)
         assert len(items) == 1
@@ -150,18 +150,14 @@ class TestExtractSegment:
 
             config = _make_config()
             seg = _make_segment()
-            items = asyncio.run(
-                _extract_segment(seg, "vid1", [], [], config)
-            )
+            items = asyncio.run(_extract_segment(seg, "vid1", [], [], config))
             assert len(items) == 3
             mock_litellm.acompletion.assert_called_once()
 
     def test_empty_segment_skipped(self) -> None:
         config = _make_config()
         seg = _make_segment(text="   ")
-        items = asyncio.run(
-            _extract_segment(seg, "vid1", [], [], config)
-        )
+        items = asyncio.run(_extract_segment(seg, "vid1", [], [], config))
         assert items == []
 
     def test_retry_on_malformed_json(self) -> None:
@@ -170,15 +166,11 @@ class TestExtractSegment:
         good_response = _mock_llm_response(good_fixture)
 
         with patch("yt_factify.extraction.litellm") as mock_litellm:
-            mock_litellm.acompletion = AsyncMock(
-                side_effect=[bad_response, good_response]
-            )
+            mock_litellm.acompletion = AsyncMock(side_effect=[bad_response, good_response])
 
             config = _make_config()
             seg = _make_segment()
-            items = asyncio.run(
-                _extract_segment(seg, "vid1", [], [], config)
-            )
+            items = asyncio.run(_extract_segment(seg, "vid1", [], [], config))
             assert len(items) == 3
             assert mock_litellm.acompletion.call_count == 2
 
@@ -191,9 +183,7 @@ class TestExtractSegment:
             config = _make_config()
             seg = _make_segment()
             with pytest.raises(ExtractionError, match="Failed to extract"):
-                asyncio.run(
-                    _extract_segment(seg, "vid1", [], [], config)
-                )
+                asyncio.run(_extract_segment(seg, "vid1", [], [], config))
 
     def test_llm_api_error_retries(self) -> None:
         good_fixture = (FIXTURES_DIR / "extraction_valid.json").read_text()
@@ -206,9 +196,7 @@ class TestExtractSegment:
 
             config = _make_config()
             seg = _make_segment()
-            items = asyncio.run(
-                _extract_segment(seg, "vid1", [], [], config)
-            )
+            items = asyncio.run(_extract_segment(seg, "vid1", [], [], config))
             assert len(items) == 3
 
     def test_categories_and_modules_passed(self) -> None:
@@ -229,7 +217,8 @@ class TestExtractSegment:
             seg = _make_segment()
             asyncio.run(
                 _extract_segment(
-                    seg, "vid1",
+                    seg,
+                    "vid1",
                     [VideoCategory.TUTORIAL],
                     [module],
                     config,
@@ -261,9 +250,7 @@ class TestExtractItems:
                 _make_segment(start_ms=0, end_ms=5000),
                 _make_segment(start_ms=5000, end_ms=10000),
             ]
-            items = asyncio.run(
-                extract_items(segments, "vid1", [], [], config)
-            )
+            items = asyncio.run(extract_items(segments, "vid1", [], [], config))
             # 3 items per segment × 2 segments = 6
             assert len(items) == 6
             assert mock_litellm.acompletion.call_count == 2
@@ -280,9 +267,7 @@ class TestExtractItems:
                 _make_segment(start_ms=0, end_ms=5000),
                 _make_segment(start_ms=5000, end_ms=10000),
             ]
-            items = asyncio.run(
-                extract_items(segments, "vid1", [], [], config)
-            )
+            items = asyncio.run(extract_items(segments, "vid1", [], [], config))
             ids = [item.id for item in items]
             assert len(ids) == len(set(ids))
 
@@ -295,8 +280,9 @@ class TestExtractItems:
             # First segment always fails, second succeeds
             mock_litellm.acompletion = AsyncMock(
                 side_effect=[
-                    bad_response, bad_response,  # seg 0: fail both retries
-                    good_response,               # seg 1: succeed
+                    bad_response,
+                    bad_response,  # seg 0: fail both retries
+                    good_response,  # seg 1: succeed
                 ]
             )
 
@@ -305,17 +291,13 @@ class TestExtractItems:
                 _make_segment(start_ms=0, end_ms=5000),
                 _make_segment(start_ms=5000, end_ms=10000),
             ]
-            items = asyncio.run(
-                extract_items(segments, "vid1", [], [], config)
-            )
+            items = asyncio.run(extract_items(segments, "vid1", [], [], config))
             # Only second segment's items should be returned
             assert len(items) == 3
 
     def test_empty_segments_list(self) -> None:
         config = _make_config()
-        items = asyncio.run(
-            extract_items([], "vid1", [], [], config)
-        )
+        items = asyncio.run(extract_items([], "vid1", [], [], config))
         assert items == []
 
     def test_concurrency_limited(self) -> None:
@@ -341,7 +323,5 @@ class TestExtractItems:
 
             config = _make_config(max_concurrent_requests=2)
             segments = [_make_segment(start_ms=i * 1000, end_ms=(i + 1) * 1000) for i in range(5)]
-            asyncio.run(
-                extract_items(segments, "vid1", [], [], config)
-            )
+            asyncio.run(extract_items(segments, "vid1", [], [], config))
             assert max_concurrent <= 2

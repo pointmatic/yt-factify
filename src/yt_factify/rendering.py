@@ -69,10 +69,7 @@ def _render_video_info(result: ExtractionResult) -> str:
     cats = ", ".join(c.value for c in result.classification.categories)
     lines.append(f"- **Categories:** {cats}")
     bp = result.classification.bias_profile
-    lines.append(
-        f"- **Bias:** {bp.primary_label} "
-        f"(confidence: {bp.confidence:.0%})"
-    )
+    lines.append(f"- **Bias:** {bp.primary_label} (confidence: {bp.confidence:.0%})")
     if bp.rationale:
         lines.append(f"- **Bias Rationale:** {bp.rationale}")
     return "\n".join(lines)
@@ -85,8 +82,7 @@ def _render_topic_overview(threads: list[TopicThread]) -> str:
     lines = ["## Topic Overview", ""]
     for thread in threads:
         timeline_str = ", ".join(
-            f"{_format_ms(span.start_ms)}–{_format_ms(span.end_ms)}"
-            for span in thread.timeline
+            f"{_format_ms(span.start_ms)}–{_format_ms(span.end_ms)}" for span in thread.timeline
         )
         lines.append(f"### {thread.display_name}")
         lines.append("")
@@ -115,7 +111,7 @@ def _render_items_section(
         speaker = f" ({item.speaker})" if item.speaker else ""
 
         if item.type == ItemType.DIRECT_QUOTE:
-            lines.append(f"> \"{item.content}\"{speaker}")
+            lines.append(f'> "{item.content}"{speaker}')
         else:
             lines.append(f"- {item.content}{speaker}")
 
@@ -123,16 +119,10 @@ def _render_items_section(
 
         if item.credibility:
             cred = item.credibility
-            lines.append(
-                f"  Credibility: **{cred.label.value}** "
-                f"({cred.confidence:.0%})"
-            )
+            lines.append(f"  Credibility: **{cred.label.value}** ({cred.confidence:.0%})")
 
         if item.belief_system_flags:
-            flags = ", ".join(
-                f"{f.module_label}: {f.note}"
-                for f in item.belief_system_flags
-            )
+            flags = ", ".join(f"{f.module_label}: {f.note}" for f in item.belief_system_flags)
             lines.append(f"  Belief systems: {flags}")
 
         lines.append("")
@@ -141,23 +131,15 @@ def _render_items_section(
 
 def _render_belief_system_notes(result: ExtractionResult) -> str:
     """Render the Belief System Notes section."""
-    flagged = [
-        item for item in result.items if item.belief_system_flags
-    ]
+    flagged = [item for item in result.items if item.belief_system_flags]
     if not flagged:
         return ""
     lines = ["## Belief System Notes", ""]
-    lines.append(
-        "The following items were flagged as relying on specific "
-        "worldview assumptions:"
-    )
+    lines.append("The following items were flagged as relying on specific worldview assumptions:")
     lines.append("")
     for item in flagged:
         for flag in item.belief_system_flags:
-            lines.append(
-                f"- **{flag.module_label}:** {flag.note} "
-                f"(item: {item.id})"
-            )
+            lines.append(f"- **{flag.module_label}:** {flag.note} (item: {item.id})")
     lines.append("")
     return "\n".join(lines)
 

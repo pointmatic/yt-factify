@@ -85,7 +85,7 @@ def _format_item_for_prompt(item: ExtractedItem) -> str:
         f"- ID: {item.id}\n"
         f"  Type: {item.type.value}{speaker_str}\n"
         f"  Content: {item.content}\n"
-        f"  Evidence: \"{item.transcript_evidence.text}\""
+        f'  Evidence: "{item.transcript_evidence.text}"'
     )
 
 

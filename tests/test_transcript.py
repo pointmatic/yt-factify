@@ -109,12 +109,8 @@ class TestNormalizeTranscript:
         raw = RawTranscript(
             video_id="test",
             segments=[
-                TranscriptSegmentRaw(
-                    text="  hello   world  ", start_ms=0, end_ms=5000
-                ),
-                TranscriptSegmentRaw(
-                    text="foo\t\nbar", start_ms=5000, end_ms=10000
-                ),
+                TranscriptSegmentRaw(text="  hello   world  ", start_ms=0, end_ms=5000),
+                TranscriptSegmentRaw(text="foo\t\nbar", start_ms=5000, end_ms=10000),
             ],
         )
         result = normalize_transcript(raw)
@@ -125,12 +121,8 @@ class TestNormalizeTranscript:
         raw = RawTranscript(
             video_id="test",
             segments=[
-                TranscriptSegmentRaw(
-                    text="caf\u00e9", start_ms=0, end_ms=5000
-                ),
-                TranscriptSegmentRaw(
-                    text="cafe\u0301", start_ms=5000, end_ms=10000
-                ),
+                TranscriptSegmentRaw(text="caf\u00e9", start_ms=0, end_ms=5000),
+                TranscriptSegmentRaw(text="cafe\u0301", start_ms=5000, end_ms=10000),
             ],
         )
         result = normalize_transcript(raw)

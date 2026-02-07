@@ -68,7 +68,7 @@ def get_builtin_modules() -> list[BeliefSystemModule]:
 
     try:
         module_files = resources.files(_BUILTIN_MODULES_PACKAGE)
-    except (ModuleNotFoundError, TypeError):
+    except ModuleNotFoundError, TypeError:
         logger.warning("builtin_modules_package_not_found")
         return []
 

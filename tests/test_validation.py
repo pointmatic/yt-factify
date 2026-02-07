@@ -153,9 +153,7 @@ class TestVerifyQuote:
     def test_no_overlapping_segments(self) -> None:
         transcript = _make_transcript()
         # Time range beyond transcript
-        assert not verify_quote(
-            "anything", transcript, start_ms=20000, end_ms=25000
-        )
+        assert not verify_quote("anything", transcript, start_ms=20000, end_ms=25000)
 
 
 # ---------------------------------------------------------------------------

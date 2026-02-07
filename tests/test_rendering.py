@@ -61,9 +61,7 @@ def _make_result(
             model_id="gpt-4o-mini",
             model_version=None,
             prompt_templates_hash="prompt_hash",
-            processing_timestamp=datetime(
-                2026, 1, 15, 12, 5, 0, tzinfo=UTC
-            ),
+            processing_timestamp=datetime(2026, 1, 15, 12, 5, 0, tzinfo=UTC),
             segment_hashes=["seg_h1", "seg_h2"],
             yt_factify_version="0.2.2",
         ),

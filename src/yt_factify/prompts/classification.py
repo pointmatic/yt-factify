@@ -115,10 +115,7 @@ def build_classification_messages(
     system = CLASSIFICATION_SYSTEM_PROMPT.format(categories=_format_categories())
 
     sample = _sample_transcript(transcript)
-    user_content = (
-        f"Video ID: {transcript.video_id}\n\n"
-        f"Transcript:\n{sample}"
-    )
+    user_content = f"Video ID: {transcript.video_id}\n\nTranscript:\n{sample}"
 
     return [_system_msg(system), _user_msg(user_content)]
 
@@ -139,9 +136,7 @@ def build_bias_messages(
     cat_str = ", ".join(c.value for c in categories)
     sample = _sample_transcript(transcript)
     user_content = (
-        f"Video ID: {transcript.video_id}\n"
-        f"Video categories: {cat_str}\n\n"
-        f"Transcript:\n{sample}"
+        f"Video ID: {transcript.video_id}\nVideo categories: {cat_str}\n\nTranscript:\n{sample}"
     )
 
     return [_system_msg(BIAS_SYSTEM_PROMPT), _user_msg(user_content)]

@@ -70,12 +70,7 @@ def build_topic_threading_messages(
         A list of message dicts (system, user) suitable for
         litellm.completion().
     """
-    items_str = "\n\n".join(
-        _format_item_for_clustering(item) for item in items
-    )
-    user_content = (
-        f"Cluster these {len(items)} extracted items into topic threads:"
-        f"\n\n{items_str}"
-    )
+    items_str = "\n\n".join(_format_item_for_clustering(item) for item in items)
+    user_content = f"Cluster these {len(items)} extracted items into topic threads:\n\n{items_str}"
 
     return [_system_msg(TOPIC_THREADING_SYSTEM_PROMPT), _user_msg(user_content)]

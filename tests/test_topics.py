@@ -158,24 +158,32 @@ class TestParseTopicThreads:
         assert len(threads[0].timeline) >= 1
 
     def test_unknown_item_ids_filtered(self) -> None:
-        raw = json.dumps([{
-            "label": "test",
-            "display_name": "Test",
-            "summary": "A test thread.",
-            "item_ids": ["item_1", "nonexistent"],
-        }])
+        raw = json.dumps(
+            [
+                {
+                    "label": "test",
+                    "display_name": "Test",
+                    "summary": "A test thread.",
+                    "item_ids": ["item_1", "nonexistent"],
+                }
+            ]
+        )
         items = [_make_item("item_1")]
         threads = _parse_topic_threads(raw, items)
         assert len(threads) == 1
         assert threads[0].item_ids == ["item_1"]
 
     def test_all_ids_unknown_thread_skipped(self) -> None:
-        raw = json.dumps([{
-            "label": "ghost",
-            "display_name": "Ghost",
-            "summary": "No valid items.",
-            "item_ids": ["nonexistent_1", "nonexistent_2"],
-        }])
+        raw = json.dumps(
+            [
+                {
+                    "label": "ghost",
+                    "display_name": "Ghost",
+                    "summary": "No valid items.",
+                    "item_ids": ["nonexistent_1", "nonexistent_2"],
+                }
+            ]
+        )
         items = [_make_item("item_1")]
         threads = _parse_topic_threads(raw, items)
         assert len(threads) == 0
@@ -189,15 +197,17 @@ class TestParseTopicThreads:
             _parse_topic_threads("{}", [])
 
     def test_invalid_thread_skipped(self) -> None:
-        raw = json.dumps([
-            {
-                "label": "good",
-                "display_name": "Good",
-                "summary": "Valid.",
-                "item_ids": ["item_1"],
-            },
-            {"missing": "fields"},
-        ])
+        raw = json.dumps(
+            [
+                {
+                    "label": "good",
+                    "display_name": "Good",
+                    "summary": "Valid.",
+                    "item_ids": ["item_1"],
+                },
+                {"missing": "fields"},
+            ]
+        )
         items = [_make_item("item_1")]
         threads = _parse_topic_threads(raw, items)
         assert len(threads) == 1
@@ -215,12 +225,16 @@ class TestParseTopicThreads:
         assert len(threads) == 2
 
     def test_timeline_derived_from_items(self) -> None:
-        raw = json.dumps([{
-            "label": "test",
-            "display_name": "Test",
-            "summary": "Test.",
-            "item_ids": ["a", "b"],
-        }])
+        raw = json.dumps(
+            [
+                {
+                    "label": "test",
+                    "display_name": "Test",
+                    "summary": "Test.",
+                    "item_ids": ["a", "b"],
+                }
+            ]
+        )
         items = [
             _make_item("a", start_ms=1000, end_ms=3000),
             _make_item("b", start_ms=5000, end_ms=8000),
@@ -274,9 +288,7 @@ class TestClusterTopicThreads:
         good_response = _mock_llm_response(fixture)
 
         with patch("yt_factify.topics.litellm") as mock_litellm:
-            mock_litellm.acompletion = AsyncMock(
-                side_effect=[bad_response, good_response]
-            )
+            mock_litellm.acompletion = AsyncMock(side_effect=[bad_response, good_response])
 
             config = _make_config()
             items = [
@@ -300,9 +312,7 @@ class TestClusterTopicThreads:
                 _make_item("item_2"),
                 _make_item("item_3"),
             ]
-            with pytest.raises(
-                TopicClusteringError, match="Failed to cluster"
-            ):
+            with pytest.raises(TopicClusteringError, match="Failed to cluster"):
                 asyncio.run(cluster_topic_threads(items, config))
 
     def test_prompt_contains_item_info(self) -> None:

@@ -229,6 +229,5 @@ async def cluster_topic_threads(
             )
 
     raise TopicClusteringError(
-        f"Failed to cluster topic threads after {max_attempts} attempts: "
-        f"{last_error}"
+        f"Failed to cluster topic threads after {max_attempts} attempts: {last_error}"
     )

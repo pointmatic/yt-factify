@@ -74,9 +74,7 @@ def fetch_transcript(video_id: str, config: AppConfig) -> RawTranscript:
 
     if not result.success or result.transcript is None:
         errors = "; ".join(result.errors) if result.errors else "unknown error"
-        raise TranscriptFetchError(
-            f"Failed to fetch transcript for {video_id}: {errors}"
-        )
+        raise TranscriptFetchError(f"Failed to fetch transcript for {video_id}: {errors}")
 
     segments = [
         TranscriptSegmentRaw(

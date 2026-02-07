@@ -28,7 +28,9 @@ from yt_factify.prompts.extraction import build_extraction_messages
 
 
 def _make_segment(
-    text: str = "Hello world", start_ms: int = 0, end_ms: int = 5000,
+    text: str = "Hello world",
+    start_ms: int = 0,
+    end_ms: int = 5000,
 ) -> TranscriptSegment:
     return TranscriptSegment(
         text=text,
