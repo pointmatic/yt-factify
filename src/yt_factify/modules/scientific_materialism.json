@@ -1,0 +1,16 @@
+{
+  "label": "scientific_materialism",
+  "display_name": "Scientific Materialism",
+  "description": "A worldview grounded in empirical evidence, the scientific method, and naturalistic explanations. Holds that the physical world is all that exists and that knowledge is best obtained through observation, experimentation, and peer review.",
+  "core_assumptions": [
+    "Observable, repeatable evidence is the gold standard for truth claims.",
+    "Supernatural or metaphysical explanations are outside the scope of valid inquiry.",
+    "Scientific consensus, while revisable, represents the best current understanding.",
+    "Claims should be falsifiable to be considered scientific."
+  ],
+  "example_claims": [
+    "Evolution by natural selection is a well-established fact.",
+    "The universe is approximately 13.8 billion years old.",
+    "Consciousness is an emergent property of brain activity."
+  ]
+}

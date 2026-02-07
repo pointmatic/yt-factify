@@ -4,6 +4,4 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""yt-factify: Extract structured, auditable facts and quotes from YouTube video transcripts."""
-
-__version__ = "0.1.6"
+"""Built-in belief/value system modules for yt-factify."""

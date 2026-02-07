@@ -1,0 +1,16 @@
+{
+  "label": "religious_theism",
+  "display_name": "Religious Theism",
+  "description": "A worldview centered on the existence of a personal God (or gods) who created and sustains the universe, and whose will provides a moral framework. Encompasses major theistic traditions including Christianity, Islam, and Judaism.",
+  "core_assumptions": [
+    "A personal God exists and is the ultimate source of reality.",
+    "Sacred texts or divine revelation are authoritative sources of truth.",
+    "Moral truths are grounded in divine command or divine nature.",
+    "Human beings have a spiritual dimension beyond the physical."
+  ],
+  "example_claims": [
+    "The universe was created with purpose and design.",
+    "Prayer can influence outcomes in the physical world.",
+    "Human life has inherent sacred value from conception."
+  ]
+}

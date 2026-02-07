@@ -162,23 +162,23 @@ Video categorization, bias detection, and credibility assessment.
 - [x] Add MPL-2.0 header to all new source files
 - [x] Verify: all classification tests pass
 
-### Story B.f: v0.1.6 Belief/Value System Modules [Planned]
+### Story B.f: v0.1.6 Belief/Value System Modules [Done]
 
 Module loading and integration with extraction/credibility.
 
-- [ ] Create `src/yt_factify/belief_systems.py`
-  - [ ] `load_belief_modules()` — loads JSON files from a directory, validates against schema
-  - [ ] `get_builtin_modules()` — returns built-in default modules
-  - [ ] Invalid files logged and skipped
-- [ ] Create `src/yt_factify/modules/README.md` explaining module authoring
-- [ ] Create 2–3 built-in module JSON files (e.g., `scientific_materialism.json`, `religious_theism.json`, `political_progressivism.json`)
-- [ ] Create `tests/test_belief_systems.py`
-  - [ ] Test loading valid modules
-  - [ ] Test invalid module file is skipped with warning
-  - [ ] Test built-in modules load correctly
-  - [ ] Test module schema validation
-- [ ] Add MPL-2.0 header to all new source files
-- [ ] Verify: all belief system tests pass
+- [x] Create `src/yt_factify/belief_systems.py`
+  - [x] `load_belief_modules()` — loads JSON files from a directory, validates against schema
+  - [x] `get_builtin_modules()` — returns built-in default modules via `importlib.resources`
+  - [x] Invalid files logged and skipped
+- [x] Create `src/yt_factify/modules/README.md` explaining module authoring
+- [x] Create 3 built-in module JSON files: `scientific_materialism.json`, `religious_theism.json`, `political_progressivism.json`
+- [x] Create `tests/test_belief_systems.py`
+  - [x] Test loading valid modules
+  - [x] Test invalid module file is skipped with warning
+  - [x] Test built-in modules load correctly
+  - [x] Test module schema validation
+- [x] Add MPL-2.0 header to all new source files
+- [x] Verify: all belief system tests pass
 
 ### Story B.g: v0.1.7 Topic Threading [Planned]
 

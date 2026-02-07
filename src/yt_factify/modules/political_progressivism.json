@@ -1,0 +1,16 @@
+{
+  "label": "political_progressivism",
+  "display_name": "Political Progressivism",
+  "description": "A political worldview that emphasizes social reform, collective action, and government intervention to address inequality, protect marginalized groups, and promote social justice. Favors systemic explanations for social problems.",
+  "core_assumptions": [
+    "Systemic and structural factors are primary drivers of social inequality.",
+    "Government regulation and intervention are necessary to correct market failures and protect vulnerable populations.",
+    "Social progress is achieved through collective action and institutional reform.",
+    "Diversity, equity, and inclusion are essential values for a just society."
+  ],
+  "example_claims": [
+    "The gender pay gap is primarily caused by systemic discrimination.",
+    "Universal healthcare is a fundamental right.",
+    "Climate change requires immediate, large-scale government intervention."
+  ]
+}
