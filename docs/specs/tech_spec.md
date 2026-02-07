@@ -421,9 +421,18 @@ def extract(video: str, **kwargs) -> None:
     """Extract facts, quotes, and claims from a YouTube video."""
 
 @cli.command()
+@click.argument("input_file", type=click.Path(exists=True))
+@click.option("--format", "output_format", type=click.Choice(["json", "markdown"]), default="markdown")
+@click.option("--output", "-o", type=click.Path(), help="Output file path (default: stdout)")
+def convert(input_file: str, output_format: str, output_path: str | None) -> None:
+    """Convert an existing extraction JSON to another format."""
+
+@cli.command()
 def version() -> None:
     """Print yt-factify version."""
 ```
+
+The `convert` command deserializes an existing JSON extraction result via `ExtractionResult.model_validate_json()` and re-renders it in the requested format — no LLM calls, zero token cost. It reuses `_resolve_output_path` for directory auto-naming.
 
 ---
 

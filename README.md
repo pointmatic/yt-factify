@@ -61,6 +61,12 @@ yt-factify extract dQw4w9WgXcQ --model gpt-4o-mini --format markdown --output re
 
 # Use a custom config file
 yt-factify extract dQw4w9WgXcQ --config my-config.toml
+
+# Convert existing JSON output to markdown (zero LLM cost)
+yt-factify convert results/dQw4w9WgXcQ.json --format markdown
+
+# Convert and save to a directory (auto-names as <video_id>.md)
+yt-factify convert results/dQw4w9WgXcQ.json --format markdown --output reports/
 ```
 
 ### Library Usage

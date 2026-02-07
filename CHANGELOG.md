@@ -2,6 +2,14 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.5.9] — 2026-02-07
+
+### Convert Command
+- **`yt-factify convert`** — re-render an existing extraction JSON as markdown (or vice versa) without re-running the LLM pipeline, saving 100 % of token cost
+- Accepts `--format` (`json` or `markdown`, default: `markdown`) and `--output` / `-o` with directory auto-naming support
+- Validates input JSON against `ExtractionResult` schema; exits with clear error on invalid input
+- 7 new tests (328 total)
+
 ## [0.5.8] — 2026-02-07
 
 ### Output Auto-Naming

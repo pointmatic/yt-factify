@@ -8,6 +8,7 @@ __pycache__
 *.egg-info
 .coverage
 out/*
+extract/*
 
 # removed and added with `pyve --init --force`
 .venv

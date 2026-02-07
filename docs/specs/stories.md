@@ -559,6 +559,46 @@ When `--output` points to a directory (trailing slash or existing directory), au
 - [x] Bump version to `0.5.8`
 - [x] Update `CHANGELOG.md`
 
+### Story F.i: v0.5.9 Convert Command [Done]
+
+Add a `convert` CLI command that re-renders an existing JSON extraction result as markdown (or vice versa) without re-running the LLM pipeline. This saves 100 % of token cost when the user already has the JSON output and just wants a different format.
+
+**Usage:**
+
+```bash
+# Convert JSON to markdown (stdout)
+yt-factify convert result.json --format markdown
+
+# Convert JSON to markdown (file)
+yt-factify convert result.json --format markdown --output report.md
+
+# Convert JSON to markdown (auto-named in directory)
+yt-factify convert result.json --format markdown --output reports/
+```
+
+**Acceptance criteria:**
+
+- [x] Add `convert` command to `cli.py`
+  - [x] Accepts a positional `INPUT` argument (path to JSON file)
+  - [x] `--format` option: `json` or `markdown` (default: `markdown`)
+  - [x] `--output` / `-o` option: file, directory, or stdout (reuses `_resolve_output_path`)
+- [x] Deserialize input JSON via `ExtractionResult.model_validate_json()`
+- [x] Render via `render_markdown()` or `render_json()`
+- [x] Extract `video_id` from the deserialized result for auto-naming
+- [x] Tests (7 new, 328 total):
+  - [x] Convert JSON → markdown (stdout)
+  - [x] Convert JSON → markdown (file)
+  - [x] Convert JSON → markdown (directory auto-naming)
+  - [x] Convert JSON → JSON round-trip
+  - [x] Convert with invalid JSON → error
+  - [x] Convert with invalid schema → error
+  - [x] Help output
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (328 tests)
+- [x] Bump version to `0.5.9`
+- [x] Update `CHANGELOG.md`
+- [x] Update `README.md` CLI usage section
+- [x] Update `tech_spec.md` CLI commands section
+
 ## Phase G: Channel Analytics
 
 ### Story G.a: v0.6.1 Channel Fetch Ledger [Planned]

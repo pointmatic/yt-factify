@@ -185,6 +185,55 @@ def extract(video: str, **kwargs: Any) -> None:
         click.echo(output)
 
 
+@cli.command()
+@click.argument("input_file", type=click.Path(exists=True))
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["json", "markdown"]),
+    default="markdown",
+    help="Output format (default: markdown).",
+)
+@click.option(
+    "--output",
+    "-o",
+    "output_path",
+    type=click.Path(),
+    default=None,
+    help="Output file path (default: stdout).",
+)
+def convert(input_file: str, output_format: str, output_path: str | None) -> None:
+    """Convert an existing extraction JSON to another format."""
+    from pydantic import ValidationError
+
+    from yt_factify.models import ExtractionResult
+    from yt_factify.rendering import render_json, render_markdown, write_output
+
+    input_path = Path(input_file)
+    try:
+        raw = input_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        click.echo(f"Error: cannot read {input_file}: {exc}", err=True)
+        sys.exit(EXIT_GENERAL)
+
+    try:
+        result = ExtractionResult.model_validate_json(raw)
+    except (ValidationError, ValueError) as exc:
+        click.echo(f"Error: invalid extraction JSON: {exc}", err=True)
+        sys.exit(EXIT_VALIDATION)
+
+    output = render_markdown(result) if output_format == "markdown" else render_json(result)
+
+    if output_path:
+        video_id = result.video.video_id
+        out = _resolve_output_path(output_path, video_id, output_format)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        write_output(output, out)
+        click.echo(f"Output written to {out}")
+    else:
+        click.echo(output)
+
+
 def _resolve_output_path(
     raw: str,
     video_id: str,

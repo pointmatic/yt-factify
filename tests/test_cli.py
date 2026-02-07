@@ -19,6 +19,7 @@ from yt_factify.cli import (
     EXIT_GENERAL,
     EXIT_LLM,
     EXIT_TRANSCRIPT,
+    EXIT_VALIDATION,
     _classify_error,
     _parse_video_id,
     _resolve_output_path,
@@ -416,3 +417,94 @@ class TestExtractCommand:
             assert result.exit_code == 0
             parsed = json.loads(result.output)
             assert parsed["video"]["video_id"] == "dQw4w9WgXcQ"
+
+
+# ---------------------------------------------------------------------------
+# convert command
+# ---------------------------------------------------------------------------
+
+
+def _write_json_fixture(path: Path) -> None:
+    """Write a valid extraction JSON fixture to *path*."""
+    from yt_factify.rendering import render_json
+
+    path.write_text(render_json(_make_extraction_result()), encoding="utf-8")
+
+
+class TestConvertCommand:
+    def test_convert_json_to_markdown_stdout(self, tmp_path: Path) -> None:
+        src = tmp_path / "input.json"
+        _write_json_fixture(src)
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ["convert", str(src)])
+        assert result.exit_code == 0
+        assert "## Video Info" in result.output
+        assert "dQw4w9WgXcQ" in result.output
+
+    def test_convert_json_to_markdown_file(self, tmp_path: Path) -> None:
+        src = tmp_path / "input.json"
+        _write_json_fixture(src)
+        out = tmp_path / "report.md"
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["convert", str(src), "--output", str(out)],
+        )
+        assert result.exit_code == 0
+        assert out.exists()
+        content = out.read_text()
+        assert "## Video Info" in content
+
+    def test_convert_json_to_markdown_dir_autoname(self, tmp_path: Path) -> None:
+        src = tmp_path / "input.json"
+        _write_json_fixture(src)
+        out_dir = tmp_path / "reports"
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["convert", str(src), "--output", str(out_dir) + "/"],
+        )
+        assert result.exit_code == 0
+        auto_file = out_dir / "dQw4w9WgXcQ.md"
+        assert auto_file.exists()
+        assert "dQw4w9WgXcQ" in auto_file.read_text()
+
+    def test_convert_json_to_json(self, tmp_path: Path) -> None:
+        src = tmp_path / "input.json"
+        _write_json_fixture(src)
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["convert", str(src), "--format", "json"],
+        )
+        assert result.exit_code == 0
+        parsed = json.loads(result.output)
+        assert parsed["video"]["video_id"] == "dQw4w9WgXcQ"
+
+    def test_convert_invalid_json(self, tmp_path: Path) -> None:
+        src = tmp_path / "bad.json"
+        src.write_text("not valid json {{{", encoding="utf-8")
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ["convert", str(src)])
+        assert result.exit_code == EXIT_VALIDATION
+        assert "invalid extraction JSON" in result.output
+
+    def test_convert_invalid_schema(self, tmp_path: Path) -> None:
+        src = tmp_path / "bad_schema.json"
+        src.write_text('{"foo": "bar"}', encoding="utf-8")
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ["convert", str(src)])
+        assert result.exit_code == EXIT_VALIDATION
+        assert "invalid extraction JSON" in result.output
+
+    def test_convert_help(self) -> None:
+        runner = CliRunner()
+        result = runner.invoke(cli, ["convert", "--help"])
+        assert result.exit_code == 0
+        assert "Convert an existing extraction JSON" in result.output
