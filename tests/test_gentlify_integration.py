@@ -4,16 +4,21 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
-"""Tests for gentlify integration — throttle, retry, and LLM coordination."""
+"""Tests for gentlify integration — throttle, retry, and LLM coordination.
+
+Gentlify handles concurrency, dispatch interval, jitter, and success/failure
+recording via ``throttle.acquire()``.  Retry logic lives in ``llm.py`` as a
+custom loop with provider-specific retry-after parsing and context logging.
+"""
 
 from __future__ import annotations
 
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from gentlify import RetryConfig, Throttle, ThrottleSnapshot
+from gentlify import Throttle, ThrottleSnapshot
 
-from yt_factify.llm import _is_rate_limit_error
+from yt_factify.llm import _is_rate_limit_error, _parse_retry_after
 
 
 class TestIsRateLimitError:
@@ -30,6 +35,20 @@ class TestIsRateLimitError:
         assert _is_rate_limit_error(ValueError("bad input")) is False
 
 
+class TestParseRetryAfter:
+    def test_try_again_in_seconds(self) -> None:
+        exc = Exception("Please try again in 30s after the rate limit resets")
+        assert _parse_retry_after(exc) == 30.0
+
+    def test_retry_after_seconds(self) -> None:
+        exc = Exception("retry after 15.5 seconds")
+        assert _parse_retry_after(exc) == 15.5
+
+    def test_no_hint(self) -> None:
+        exc = Exception("rate limit exceeded")
+        assert _parse_retry_after(exc) is None
+
+
 class TestThrottleInstantiation:
     def test_default_throttle(self) -> None:
         t = Throttle(max_concurrency=3, total_tasks=10)
@@ -43,20 +62,6 @@ class TestThrottleInstantiation:
         snap = t.snapshot()
         assert snap.concurrency == 2
         assert snap.max_concurrency == 5
-
-    def test_with_retry_config(self) -> None:
-        t = Throttle(
-            max_concurrency=3,
-            retry=RetryConfig(
-                max_attempts=6,
-                backoff="exponential_jitter",
-                base_delay=15.0,
-                max_delay=120.0,
-                retryable=_is_rate_limit_error,
-            ),
-        )
-        snap = t.snapshot()
-        assert snap.max_concurrency == 3
 
 
 class TestLLMCompletionWithThrottle:
@@ -93,7 +98,7 @@ class TestLLMCompletionWithThrottle:
         asyncio.run(_run())
 
     def test_retry_on_rate_limit_then_success(self) -> None:
-        """Verify gentlify retries rate-limit errors and eventually succeeds."""
+        """Custom retry loop retries rate-limit errors via acquire()."""
         from yt_factify.config import AppConfig
         from yt_factify.llm import llm_completion
 
@@ -103,12 +108,6 @@ class TestLLMCompletionWithThrottle:
                 total_tasks=1,
                 min_dispatch_interval=0.0,
                 failure_threshold=10,
-                retry=RetryConfig(
-                    max_attempts=3,
-                    backoff="fixed",
-                    base_delay=0.01,
-                    retryable=_is_rate_limit_error,
-                ),
             )
 
             mock_response = MagicMock()
@@ -127,23 +126,26 @@ class TestLLMCompletionWithThrottle:
             with patch("yt_factify.llm.litellm") as mock_litellm:
                 mock_litellm.acompletion = AsyncMock(side_effect=side_effect)
 
-                config = AppConfig(model="test-model")
-                result = await llm_completion(
-                    messages=[{"role": "user", "content": "hello"}],
-                    config=config,
-                    throttle=throttle,
-                )
+                with patch("yt_factify.llm.asyncio.sleep", new_callable=AsyncMock):
+                    config = AppConfig(model="test-model")
+                    result = await llm_completion(
+                        messages=[{"role": "user", "content": "hello"}],
+                        config=config,
+                        throttle=throttle,
+                    )
 
-                # Retry succeeded — gentlify retried after the rate limit error
-                assert result == "ok"
-                assert call_count == 2  # first call failed, second succeeded
-                snap = throttle.snapshot()
-                assert snap.completed_tasks == 1
+                    # Custom retry loop retried after the rate limit error
+                    assert result == "ok"
+                    assert call_count == 2
+                    snap = throttle.snapshot()
+                    # First call failed (recorded by acquire), second succeeded
+                    assert snap.failure_count >= 1
+                    assert snap.completed_tasks >= 1
 
         asyncio.run(_run())
 
-    def test_exhausted_retries_records_failure(self) -> None:
-        """When all retries are exhausted, gentlify records a failure."""
+    def test_exhausted_retries_raises(self) -> None:
+        """When all rate-limit retries are exhausted, the error propagates."""
         from yt_factify.config import AppConfig
         from yt_factify.llm import llm_completion
 
@@ -152,13 +154,7 @@ class TestLLMCompletionWithThrottle:
                 max_concurrency=2,
                 total_tasks=1,
                 min_dispatch_interval=0.0,
-                failure_threshold=10,
-                retry=RetryConfig(
-                    max_attempts=2,
-                    backoff="fixed",
-                    base_delay=0.01,
-                    retryable=_is_rate_limit_error,
-                ),
+                failure_threshold=100,
             )
 
             with patch("yt_factify.llm.litellm") as mock_litellm:
@@ -166,24 +162,25 @@ class TestLLMCompletionWithThrottle:
                     side_effect=Exception("rate_limit_error: slow down"),
                 )
 
-                config = AppConfig(model="test-model")
-                try:
-                    await llm_completion(
-                        messages=[{"role": "user", "content": "hello"}],
-                        config=config,
-                        throttle=throttle,
-                    )
-                    raise AssertionError("Should have raised")  # noqa: TRY301
-                except Exception as exc:
-                    assert "rate_limit_error" in str(exc)
+                with patch("yt_factify.llm.asyncio.sleep", new_callable=AsyncMock):
+                    config = AppConfig(model="test-model")
+                    try:
+                        await llm_completion(
+                            messages=[{"role": "user", "content": "hello"}],
+                            config=config,
+                            throttle=throttle,
+                        )
+                        raise AssertionError("Should have raised")  # noqa: TRY301
+                    except Exception as exc:
+                        assert "rate_limit_error" in str(exc)
 
-                snap = throttle.snapshot()
-                assert snap.failure_count >= 1
+                    snap = throttle.snapshot()
+                    assert snap.failure_count >= 1
 
         asyncio.run(_run())
 
-    def test_non_retryable_error_propagates(self) -> None:
-        """Non-rate-limit errors propagate immediately."""
+    def test_non_rate_limit_error_retries_up_to_max_attempts(self) -> None:
+        """Non-rate-limit errors retry up to max_attempts then propagate."""
         from yt_factify.config import AppConfig
         from yt_factify.llm import llm_completion
 
@@ -192,29 +189,31 @@ class TestLLMCompletionWithThrottle:
                 max_concurrency=2,
                 total_tasks=1,
                 min_dispatch_interval=0.0,
-                retry=RetryConfig(
-                    max_attempts=3,
-                    backoff="fixed",
-                    base_delay=0.01,
-                    retryable=_is_rate_limit_error,
-                ),
             )
 
+            call_count = 0
+
+            async def side_effect(*args: object, **kwargs: object) -> None:
+                nonlocal call_count
+                call_count += 1
+                raise ValueError("bad model response")
+
             with patch("yt_factify.llm.litellm") as mock_litellm:
-                mock_litellm.acompletion = AsyncMock(
-                    side_effect=ValueError("bad model response"),
-                )
+                mock_litellm.acompletion = AsyncMock(side_effect=side_effect)
 
                 config = AppConfig(model="test-model")
                 try:
                     await llm_completion(
                         messages=[{"role": "user", "content": "hello"}],
                         config=config,
+                        max_attempts=2,
                         throttle=throttle,
                     )
                     raise AssertionError("Should have raised")  # noqa: TRY301
                 except ValueError as exc:
                     assert "bad model response" in str(exc)
+
+                assert call_count == 2  # retried once, then raised
 
         asyncio.run(_run())
 
@@ -323,13 +322,6 @@ class TestPipelineThrottleConfig:
             max_concurrency=config.max_concurrent_requests,
             initial_concurrency=config.initial_concurrent_requests,
             total_tasks=10,
-            retry=RetryConfig(
-                max_attempts=6,
-                backoff="exponential_jitter",
-                base_delay=15.0,
-                max_delay=120.0,
-                retryable=_is_rate_limit_error,
-            ),
         )
 
         snap = throttle.snapshot()

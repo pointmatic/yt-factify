@@ -12,14 +12,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import structlog
-from gentlify import RetryConfig, Throttle
+from gentlify import Throttle
 
 from yt_factify import __version__
 from yt_factify.belief_systems import get_builtin_modules, load_belief_modules
 from yt_factify.classification import assess_credibility, classify_video
 from yt_factify.config import AppConfig
 from yt_factify.extraction import extract_items
-from yt_factify.llm import _is_rate_limit_error
 from yt_factify.models import (
     AuditBundle,
     ExtractionResult,
@@ -107,17 +106,13 @@ async def run_pipeline(
     )
 
     # 4. Initialize gentlify throttle for LLM calls
+    #    Retry logic lives in llm.py (custom loop with provider-specific
+    #    retry-after parsing); gentlify handles concurrency, dispatch
+    #    interval, jitter, and success/failure recording.
     throttle = Throttle(
         max_concurrency=config.max_concurrent_requests,
         initial_concurrency=config.initial_concurrent_requests,
         total_tasks=len(segments),
-        retry=RetryConfig(
-            max_attempts=6,
-            backoff="exponential_jitter",
-            base_delay=15.0,
-            max_delay=120.0,
-            retryable=_is_rate_limit_error,
-        ),
         on_state_change=lambda event: logger.info(
             f"throttle_{event.kind}",
             **event.data,

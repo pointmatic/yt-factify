@@ -2,18 +2,28 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.6.1] — 2026-02-08
+
+### Hybrid acquire() + Custom Retry
+- Replaced `throttle.wrap()` with `throttle.acquire()` + custom retry loop in `llm.py`
+- Restored `_parse_retry_after()` — parses provider-specific retry-after hints from error messages
+- Restored backoff constants (`_RATE_LIMIT_BASE_DELAY=15s`, `_RATE_LIMIT_MAX_DELAY=120s`, `_RATE_LIMIT_MAX_RETRIES=6`)
+- Restored context-specific logging per retry attempt (`{context}_rate_limited`)
+- Restored separate retry counters for rate-limit vs non-rate-limit errors
+- Removed `RetryConfig` from pipeline — retry is now handled in `llm.py`, gentlify handles concurrency/dispatch/jitter/recording
+- Added `TestParseRetryAfter` tests, updated retry tests to verify `failure_count` via `acquire()` recording
+- 321 tests pass
+
 ## [0.6.0] — 2026-02-08
 
 ### gentlify Integration
 - **Replaced ad-hoc `AdaptiveThrottle`** with [`gentlify`](https://pypi.org/project/gentlify/) (v1.6.2+) — adaptive async rate limiting library
 - Deleted `src/yt_factify/throttle.py` (351 lines) — all throttle logic now handled by gentlify
-- Refactored `llm.py` — removed manual retry loop and backoff constants; uses `throttle.wrap()` for automatic retry with exponential jitter backoff
-- `RetryConfig(max_attempts=6, base_delay=15s, max_delay=120s)` replaces the hand-rolled rate-limit retry
-- `_is_rate_limit_error()` retained as gentlify's `retryable` predicate for LLM-specific error detection
+- Refactored `llm.py` — uses `gentlify.Throttle` for concurrency, dispatch interval, jitter, and success/failure recording
 - Pipeline instantiates `gentlify.Throttle` with `on_state_change` and `on_progress` callbacks for structlog integration
 - Updated type annotations in `extraction.py`, `classification.py`, `topics.py` — `AdaptiveThrottle` → `gentlify.Throttle`
 - Removed fallback `asyncio.Semaphore` in `extract_items()` — gentlify handles concurrency
-- Rewrote `test_throttle.py` → `test_gentlify_integration.py` (14 tests covering instantiation, retry, concurrency, deceleration, snapshots, backward compatibility)
+- Rewrote `test_throttle.py` → `test_gentlify_integration.py`
 - Added `gentlify>=1.6.2` to project dependencies
 - 319 tests pass
 

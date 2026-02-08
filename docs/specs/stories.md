@@ -675,7 +675,33 @@ Replace the custom `AdaptiveThrottle` in `throttle.py` and the manual retry loop
 - [x] Bump version to `0.6.0` in `pyproject.toml` and `src/yt_factify/__init__.py`
 - [x] Update `CHANGELOG.md`
 
-### Story G.b: v0.6.1 gentlify Integration Docs [Planned]
+### Story G.b: v0.6.1 gentlify Throttle.acquire() with Custom Retry [Done]
+
+Replace `throttle.wrap()` with `throttle.acquire()` + a custom retry loop in `llm.py`. This hybrid approach lets gentlify handle concurrency, dispatch interval, jitter, and success/failure recording, while the application retains control over retry decisions — provider-specific `retry-after` hint parsing, context-specific logging per attempt, and separate counters for rate-limit vs non-rate-limit retries.
+
+**Acceptance criteria:**
+
+- [x] Refactor `src/yt_factify/llm.py`:
+  - [x] Replace `throttle.wrap()` with `async with throttle.acquire():` inside a custom retry loop
+  - [x] Restore `_parse_retry_after()` — parse provider-specific retry-after hints from error messages
+  - [x] Restore backoff constants: `_RATE_LIMIT_BASE_DELAY` (15s), `_RATE_LIMIT_MAX_DELAY` (120s), `_RATE_LIMIT_MAX_RETRIES` (6)
+  - [x] Restore context-specific logging: `{context}_rate_limited` with attempt number and delay per retry
+  - [x] Restore separate retry counters: `max_attempts` for non-rate-limit errors, `_RATE_LIMIT_MAX_RETRIES` for rate-limit errors
+  - [x] Gentlify's `acquire()` records success/failure automatically; no manual `record_success()`/`record_failure()` needed
+- [x] Refactor `src/yt_factify/pipeline.py`:
+  - [x] Remove `RetryConfig` import and `retry=` parameter from `Throttle` instantiation — retry is now handled in `llm.py`
+  - [x] Remove `_is_rate_limit_error` import — no longer needed in pipeline
+  - [x] Add comment explaining the separation of concerns (gentlify = throttle, llm.py = retry)
+- [x] Update `tests/test_gentlify_integration.py`:
+  - [x] Add `TestParseRetryAfter` tests (hint parsing, no hint)
+  - [x] Update retry tests to mock `asyncio.sleep` and verify `failure_count` via `acquire()` recording
+  - [x] Add test for non-rate-limit errors retrying up to `max_attempts`
+  - [x] Remove `RetryConfig` from all throttle instantiations in tests
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (321 tests)
+- [x] Bump version to `0.6.1` in `pyproject.toml` and `src/yt_factify/__init__.py`
+- [x] Update `CHANGELOG.md`
+
+### Story G.c: v0.6.2 gentlify Integration Docs [Planned]
 
 Update all documentation to reflect the gentlify migration.
 
