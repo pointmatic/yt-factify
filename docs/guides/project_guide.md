@@ -18,6 +18,18 @@ The developer may optionally provide:
 - Constraints (no UI, no database, must run offline, etc.)
 - Target audience (CLI tool, library, web app, etc.)
 
+Additionally, the LLM should ask the developer the following question before writing the stories document:
+
+> **Will this project need CI/CD automation?** For example: GitHub Actions for linting/testing on every push, dynamic code coverage badges (Codecov/Coveralls), and/or automated publishing to a package registry (PyPI, npm, etc.) on tagged releases?
+
+If the answer is yes, the stories document should include a dedicated phase (typically the last phase) covering:
+
+- **CI workflow** — GitHub Actions (or equivalent) running lint, type-check, and tests on push/PR, with a Python/Node/etc. version matrix.
+- **Coverage reporting** — uploading coverage to a service like Codecov and adding a dynamic badge to the README.
+- **Release automation** — publishing to the package registry on version tags, preferably using trusted publishing (OIDC) to avoid storing API tokens.
+
+If the answer is no, skip this phase entirely.
+
 ---
 
 ## Workflow Overview
@@ -84,6 +96,21 @@ When creating the project's package manifest (e.g. `pyproject.toml`, `package.js
 
 - The `license` field must match the `LICENSE` file (use the SPDX identifier).
 - Include the copyright holder in the authors/maintainers field.
+
+### README Badges
+
+When a `README.md` is created or updated, include all applicable badges at the top of the file (below the project title). Choose from the following based on what applies to the project:
+
+| Badge | When to include | Example source |
+|-------|----------------|----------------|
+| **CI status** | If CI is configured (GitHub Actions, etc.) | GitHub Actions badge URL |
+| **Package version** | If published to a registry (PyPI, npm, crates.io) | `shields.io/pypi/v/...` |
+| **Language version** | If the package specifies supported versions | `shields.io/pypi/pyversions/...` |
+| **License** | Always (if a LICENSE file exists) | `shields.io/pypi/l/...` or `shields.io/github/license/...` |
+| **Typed** | If the project ships type stubs or a `py.typed` marker | Static `shields.io` badge |
+| **Coverage** | If a coverage service is configured (Codecov, Coveralls) | Codecov/Coveralls badge URL |
+
+Use dynamic badges from the package registry (e.g. `shields.io/pypi/...`) when the package is published. Before publication, use static `shields.io` badges or omit registry-dependent badges. Always include the **License** badge. Add badges proactively — do not wait for the developer to ask.
 
 ---
 
@@ -193,8 +220,9 @@ Recommended phase progression:
 | D | CLI & Library API | User-facing interfaces |
 | E | Testing & Quality | Test suites, coverage, edge case tests |
 | F | Documentation & Release | README, changelog, final testing, polish |
+| G | CI/CD & Automation | GitHub Actions, coverage badges, release automation (if requested) |
 
-Phases may be added, removed, or renamed to fit the project.
+Phases may be added, removed, or renamed to fit the project. Phase G (CI/CD) is only included if the developer answered "yes" to the CI/CD question in the prerequisites.
 
 #### Story Format
 
@@ -219,6 +247,7 @@ Rules:
 - **Status suffix**: `[Planned]` initially, changed to `[Done]` when completed.
 - **Checklist**: use `- [ ]` for planned tasks, `- [x]` for completed tasks. Subtasks are indented with two spaces.
 - **First story** should always be a minimal "Hello World" — the smallest possible runnable artifact.
+- **Homepage**: If a project homepage (e.g. `docs/index.html`) was created during the planning phase, include a task in the Hello World story to verify it is present and references the correct repository URL.
 - **Each story** should be completable in a single session and independently verifiable.
 - **Verification tasks** (e.g. "Verify: command prints version") should be included where appropriate.
 
@@ -241,7 +270,7 @@ Once all three documents are approved, begin implementing stories in order:
    e. Mark checklist items as `[x]` and change the story suffix to `[Done]`.
    f. Bump the version in the package manifest and source (if the story has a version).
    g. Present the completed story to the developer for approval.
-3. Proceed to the next story only after approval.
+3. **Pause after each story.** Do not proceed to the next story until the developer says "proceed" (or equivalent approval). This is a hard gate — never auto-advance.
 
 ### File Header Reminder
 
