@@ -614,9 +614,91 @@ Switch the project license from MPL-2.0 to Apache-2.0 to align with the broader 
 - [x] Bump version to `0.5.10` in `pyproject.toml` and `src/yt_factify/__init__.py`
 - [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (328 tests)
 
-## Phase G: Channel Analytics
+## Phase G: gentlify Integration
 
-### Story G.a: v0.6.1 Channel Fetch Ledger [Planned]
+Refactor the ad-hoc throttling and retry logic to use the [`gentlify`](https://github.com/pointmatic/gentlify) library ([PyPI](https://pypi.org/project/gentlify/), [docs](https://pointmatic.github.io/gentlify/)).
+
+### Story G.a: v0.6.0 Replace Ad-Hoc Throttle with gentlify [Done]
+
+Replace the custom `AdaptiveThrottle` in `throttle.py` and the manual retry loop in `llm.py` with `gentlify.Throttle` and `gentlify.RetryConfig`. This is an atomic refactor — all call sites are updated in one pass so the codebase is never in a broken intermediate state.
+
+**Mapping (old → new):**
+
+| Current (ad-hoc) | gentlify replacement |
+|---|---|
+| `AdaptiveThrottle` class (351 lines in `throttle.py`) | `gentlify.Throttle` |
+| `ThrottleSnapshot` dataclass | `gentlify.ThrottleSnapshot` |
+| Manual `record_success()` / `record_failure()` | Automatic inside `throttle.acquire()` context |
+| `_is_rate_limit_error()` + exponential backoff loop in `llm.py` | `RetryConfig(max_attempts=6, backoff="exponential_jitter", base_delay=15.0, max_delay=120.0, retryable=_is_rate_limit_error)` |
+| `_parse_retry_after()` hint parsing | Retained as custom logic (gentlify doesn't parse provider-specific hints) |
+| `throttle.progress()` | `throttle.snapshot()` |
+| `throttle.total = N` setter | `Throttle(total_tasks=N)` at construction |
+
+**Acceptance criteria:**
+
+- [x] Add `gentlify>=1.6.2` to `[project.dependencies]` in `pyproject.toml`
+- [x] Delete `src/yt_factify/throttle.py` (entire file)
+- [x] Refactor `src/yt_factify/llm.py`:
+  - [x] Remove manual retry loop, backoff constants, and `_RATE_LIMIT_*` constants
+  - [x] `llm_completion()` accepts `throttle: gentlify.Throttle | None` instead of `AdaptiveThrottle | None`
+  - [x] When throttle is provided, use `throttle.wrap()` — gentlify handles concurrency, dispatch interval, jitter, retry, and records success/failure automatically (note: `wrap` used instead of `acquire` context manager because retry requires re-invocation of the wrapped function)
+  - [x] Retain `_is_rate_limit_error()` as the `retryable` predicate for `RetryConfig`
+  - [ ] ~~Retain `_parse_retry_after()`~~ — **Removed**: gentlify's built-in exponential jitter backoff (15s base) is sufficient; provider-specific hint parsing was not needed in practice
+  - [x] When throttle is `None`, fall back to a simple `litellm.acompletion()` call with no retry (preserves backward compatibility for library users who don't want throttling)
+- [x] Refactor `src/yt_factify/pipeline.py`:
+  - [x] Replace `from yt_factify.throttle import AdaptiveThrottle` with `from gentlify import Throttle, RetryConfig`
+  - [x] Instantiate `Throttle` with `RetryConfig`, `initial_concurrency`, `max_concurrency`, `total_tasks`, and `on_state_change` + `on_progress` callbacks for structlog integration
+  - [x] Pass `Throttle` instance to all LLM-calling stages
+- [x] Update type annotations in `src/yt_factify/extraction.py`:
+  - [x] Change `throttle: AdaptiveThrottle | None` → `throttle: Throttle | None`
+  - [x] Remove `TYPE_CHECKING` import of `AdaptiveThrottle`
+  - [x] Remove fallback `asyncio.Semaphore` in `extract_items()` — gentlify handles concurrency
+- [x] Update type annotations in `src/yt_factify/classification.py`:
+  - [x] Change `throttle: AdaptiveThrottle | None` → `throttle: Throttle | None`
+  - [x] Remove `TYPE_CHECKING` import of `AdaptiveThrottle`
+- [x] Update type annotations in `src/yt_factify/topics.py`:
+  - [x] Change `throttle: AdaptiveThrottle | None` → `throttle: Throttle | None`
+  - [x] Remove `TYPE_CHECKING` import of `AdaptiveThrottle`
+- [x] Rewrite `tests/test_throttle.py` → `tests/test_gentlify_integration.py`:
+  - [x] Test `Throttle` instantiation with yt-factify's config values
+  - [x] Test `llm_completion()` with gentlify throttle records success
+  - [x] Test retry behavior: rate-limit error retried then succeeds, retries exhausted records failure
+  - [x] Test non-retryable error propagates immediately
+  - [x] Test concurrency limiting via gentlify
+  - [x] Test dispatch interval config accepted
+  - [x] Test deceleration on repeated failures (via gentlify's built-in behavior)
+  - [x] Test pipeline instantiates throttle with correct config values
+  - [x] Test backward compatibility: `throttle=None` still works
+  - [x] Test snapshot fields and snapshot after completions
+- [x] Update existing test mocks that reference `yt_factify.throttle` or `AdaptiveThrottle` (1 test in `test_extraction.py` updated)
+- [x] Verify: `ruff check`, `ruff format --check`, `mypy --strict`, `pytest` — all pass (319 tests)
+- [x] Bump version to `0.6.0` in `pyproject.toml` and `src/yt_factify/__init__.py`
+- [x] Update `CHANGELOG.md`
+
+### Story G.b: v0.6.1 gentlify Integration Docs [Planned]
+
+Update all documentation to reflect the gentlify migration.
+
+- [ ] Update `docs/specs/tech_spec.md`:
+  - [ ] Replace `throttle.py` module section with gentlify integration description
+  - [ ] Update package structure tree (remove `throttle.py`)
+  - [ ] Update "Rate Limiting & Retry Strategy" section to reference gentlify
+  - [ ] Update dependency table to include `gentlify`
+  - [ ] Update `AdaptiveThrottle` code examples to `gentlify.Throttle`
+- [ ] Update `docs/specs/features.md`:
+  - [ ] Update Performance Notes to reference gentlify
+- [ ] Update `README.md`:
+  - [ ] Mention gentlify in the features/architecture section
+  - [ ] Update any throttle-related configuration examples
+- [ ] Update `docs/specs/stories.md`:
+  - [ ] Mark G.a and G.b as `[Done]`
+- [ ] Verify: no stale references to `AdaptiveThrottle` or `yt_factify.throttle` remain in docs
+- [ ] Bump version to `0.6.1`
+- [ ] Update `CHANGELOG.md`
+
+## Phase H: Channel Analytics
+
+### Story H.a: v1.1.0 Channel Fetch Ledger [Planned]
 
 Per-channel ledger tracking the most recent transcript fetch success and failure, scoped to channel ID to avoid unbounded growth.
 
@@ -655,9 +737,9 @@ Per-channel ledger tracking the most recent transcript fetch success and failure
 
 ---
 
-## Phase H: CI/CD
+## Phase I: CI/CD
 
-### Story H.a: v0.7.1 GitHub Actions CI [Planned]
+### Story I.a: v1.2.0 GitHub Actions CI [Planned]
 
 Set up continuous integration with GitHub Actions.
 
@@ -676,7 +758,7 @@ Set up continuous integration with GitHub Actions.
   - [ ] Add CI status badge (passing/failing)
 - [ ] Verify: push triggers workflow, badges update automatically
 
-### Story G.b: v0.7.2 Release Automation [Planned]
+### Story I.b: v1.3.0 Release Automation [Planned]
 
 Automate version tagging and release publishing.
 

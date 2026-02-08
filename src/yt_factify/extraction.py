@@ -28,7 +28,7 @@ from yt_factify.prompts.extraction import (
 )
 
 if TYPE_CHECKING:
-    from yt_factify.throttle import AdaptiveThrottle
+    from gentlify import Throttle
 
 logger = structlog.get_logger()
 
@@ -99,7 +99,7 @@ async def _extract_segment(
     categories: list[VideoCategory],
     belief_modules: list[BeliefSystemModule],
     config: AppConfig,
-    throttle: AdaptiveThrottle | None = None,
+    throttle: Throttle | None = None,
 ) -> list[ExtractedItem]:
     """Extract items from a single segment via LLM.
 
@@ -112,6 +112,7 @@ async def _extract_segment(
         categories: Video categories for context.
         belief_modules: Belief system modules for flagging.
         config: Application configuration.
+        throttle: Optional shared gentlify Throttle.
 
     Returns:
         List of extracted items from this segment.
@@ -189,13 +190,12 @@ async def extract_items(
     categories: list[VideoCategory],
     belief_modules: list[BeliefSystemModule],
     config: AppConfig,
-    throttle: AdaptiveThrottle | None = None,
+    throttle: Throttle | None = None,
 ) -> list[ExtractedItem]:
     """Extract structured items from transcript segments via LLM.
 
-    Processes segments concurrently. If a throttle is provided, it
-    coordinates dispatch rate and concurrency globally. Otherwise
-    falls back to a simple semaphore.
+    Processes segments concurrently. If a throttle is provided, gentlify
+    coordinates dispatch rate and concurrency globally.
 
     Args:
         segments: Transcript segments to process.
@@ -203,25 +203,13 @@ async def extract_items(
         categories: Video categories for context.
         belief_modules: Belief system modules for flagging.
         config: Application configuration.
-        throttle: Optional shared throttle for adaptive rate control.
+        throttle: Optional shared gentlify Throttle for adaptive rate control.
 
     Returns:
         Flat list of all extracted items across all segments.
     """
-    # When no throttle, use a simple semaphore for backward compatibility
-    semaphore = None if throttle else asyncio.Semaphore(config.max_concurrent_requests)
 
     async def _limited_extract(seg: TranscriptSegment) -> list[ExtractedItem]:
-        if semaphore is not None:
-            async with semaphore:
-                return await _extract_segment(
-                    segment=seg,
-                    video_id=video_id,
-                    categories=categories,
-                    belief_modules=belief_modules,
-                    config=config,
-                    throttle=throttle,
-                )
         return await _extract_segment(
             segment=seg,
             video_id=video_id,

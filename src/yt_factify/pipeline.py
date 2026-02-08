@@ -12,18 +12,19 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import structlog
+from gentlify import RetryConfig, Throttle
 
 from yt_factify import __version__
 from yt_factify.belief_systems import get_builtin_modules, load_belief_modules
 from yt_factify.classification import assess_credibility, classify_video
 from yt_factify.config import AppConfig
 from yt_factify.extraction import extract_items
+from yt_factify.llm import _is_rate_limit_error
 from yt_factify.models import (
     AuditBundle,
     ExtractionResult,
     VideoInfo,
 )
-from yt_factify.throttle import AdaptiveThrottle
 from yt_factify.topics import cluster_topic_threads
 from yt_factify.transcript import (
     fetch_transcript,
@@ -105,11 +106,30 @@ async def run_pipeline(
         builtin_count=len(belief_modules),
     )
 
-    # 4. Initialize adaptive throttle for LLM calls
-    throttle = AdaptiveThrottle(
+    # 4. Initialize gentlify throttle for LLM calls
+    throttle = Throttle(
         max_concurrency=config.max_concurrent_requests,
         initial_concurrency=config.initial_concurrent_requests,
         total_tasks=len(segments),
+        retry=RetryConfig(
+            max_attempts=6,
+            backoff="exponential_jitter",
+            base_delay=15.0,
+            max_delay=120.0,
+            retryable=_is_rate_limit_error,
+        ),
+        on_state_change=lambda event: logger.info(
+            f"throttle_{event.kind}",
+            **event.data,
+        ),
+        on_progress=lambda snap: logger.info(
+            "throttle_progress",
+            completed=snap.completed_tasks,
+            total=snap.total_tasks,
+            concurrency=snap.concurrency,
+            dispatch_interval=round(snap.dispatch_interval, 2),
+            eta_seconds=round(snap.eta_seconds, 1) if snap.eta_seconds is not None else None,
+        ),
     )
 
     # 5. Classify video (category + bias)

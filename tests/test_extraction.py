@@ -301,7 +301,9 @@ class TestExtractItems:
         assert items == []
 
     def test_concurrency_limited(self) -> None:
-        """Verify the semaphore limits concurrent requests."""
+        """Verify gentlify throttle limits concurrent requests."""
+        from gentlify import Throttle
+
         fixture = (FIXTURES_DIR / "extraction_valid.json").read_text()
         mock_response = _mock_llm_response(fixture)
         max_concurrent = 0
@@ -322,6 +324,7 @@ class TestExtractItems:
             mock_litellm.acompletion = tracked_acompletion
 
             config = _make_config(max_concurrent_requests=2)
+            throttle = Throttle(max_concurrency=2, min_dispatch_interval=0.0, total_tasks=5)
             segments = [_make_segment(start_ms=i * 1000, end_ms=(i + 1) * 1000) for i in range(5)]
-            asyncio.run(extract_items(segments, "vid1", [], [], config))
+            asyncio.run(extract_items(segments, "vid1", [], [], config, throttle=throttle))
             assert max_concurrent <= 2

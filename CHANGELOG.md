@@ -2,6 +2,21 @@
 
 All notable changes to yt-factify are documented in this file.
 
+## [0.6.0] — 2026-02-08
+
+### gentlify Integration
+- **Replaced ad-hoc `AdaptiveThrottle`** with [`gentlify`](https://pypi.org/project/gentlify/) (v1.6.2+) — adaptive async rate limiting library
+- Deleted `src/yt_factify/throttle.py` (351 lines) — all throttle logic now handled by gentlify
+- Refactored `llm.py` — removed manual retry loop and backoff constants; uses `throttle.wrap()` for automatic retry with exponential jitter backoff
+- `RetryConfig(max_attempts=6, base_delay=15s, max_delay=120s)` replaces the hand-rolled rate-limit retry
+- `_is_rate_limit_error()` retained as gentlify's `retryable` predicate for LLM-specific error detection
+- Pipeline instantiates `gentlify.Throttle` with `on_state_change` and `on_progress` callbacks for structlog integration
+- Updated type annotations in `extraction.py`, `classification.py`, `topics.py` — `AdaptiveThrottle` → `gentlify.Throttle`
+- Removed fallback `asyncio.Semaphore` in `extract_items()` — gentlify handles concurrency
+- Rewrote `test_throttle.py` → `test_gentlify_integration.py` (14 tests covering instantiation, retry, concurrency, deceleration, snapshots, backward compatibility)
+- Added `gentlify>=1.6.2` to project dependencies
+- 319 tests pass
+
 ## [0.5.10] — 2026-02-07
 
 ### License Switch

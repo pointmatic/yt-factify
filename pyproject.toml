@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yt-factify"
-version = "0.5.10"
+version = "0.6.0"
 description = "Extract structured, auditable facts, quotes, topic threads, and biases from YouTube video transcripts"
 license = "Apache-2.0"
 requires-python = ">=3.14"
@@ -19,6 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "click>=8.0",
+    "gentlify>=1.6.2",
     "litellm>=1.0",
     "pydantic>=2.0",
     "rich>=13.0",
@@ -56,7 +57,7 @@ warn_return_any = true
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
-module = ["yt_fetch.*", "litellm.*"]
+module = ["yt_fetch.*", "litellm.*", "gentlify.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
